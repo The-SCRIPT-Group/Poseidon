@@ -1,8 +1,8 @@
 For linux only rn \
-prerequisites : python3, selenium, geckodriver, pytesseract, pillow \
+prerequisites : python3, selenium, geckodriver, pytesseract, pillow
 
 Download geckodriver from https://github.com/mozilla/geckodriver/releases \
-copy geckodriver to /usr/bin directory using \
+copy geckodriver to /usr/bin directory using
 ```sh
 sudo mv geckodriver /usr/bin/geckodriver
 ```
