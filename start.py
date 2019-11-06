@@ -1,4 +1,5 @@
 from selenium import webdriver
+from selenium.webdriver.firefox.options import Options
 from PIL import Image
 from io import BytesIO
 import pytesseract
@@ -10,8 +11,9 @@ import os
 captcha_file = str(uuid.uuid4().hex)+'.png'
 userName = str(input("Enter Username : "))
 password = str(input("Enter Password : "))
-
-driver = webdriver.Firefox()
+options = Options()
+options.headless = True
+driver = webdriver.Firefox(options=options)
 driver.get("https://erp.mitwpu.edu.in/")
 
 def getCaptcha():
