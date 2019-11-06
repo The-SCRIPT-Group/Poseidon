@@ -16,6 +16,9 @@ pip3 install pillow --user
 pip3 install tesseract-ocr --user
 ```
 ```sh
+pip3 install pandas --user
+```
+```sh
 cd /usr/share/tessdata/
 sudo wget https://github.com/tesseract-ocr/tessdata/raw/master/eng.traineddata
 ```

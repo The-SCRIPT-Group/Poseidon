@@ -1,3 +1,6 @@
 __pycache__
 *.log
 credentials.txt
+*.html
+MainLogin_files
+temp.*
