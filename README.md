@@ -2,7 +2,7 @@ For linux only rn \
 for MITWPU students only \
 prerequisites : python3, selenium, geckodriver, pytesseract, pillow, tesserect-ocr\
  \
-It gives Attendence as an output in terminal (no need manual captcha solving) \
+It gives Attendence as an output in terminal (no need of manual captcha solving) \
  \
 Download geckodriver from https://github.com/mozilla/geckodriver/releases \
 copy geckodriver to /usr/bin directory using
