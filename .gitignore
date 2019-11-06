@@ -4,3 +4,5 @@ credentials.txt
 *.html
 MainLogin_files
 temp.*
+*.csv
+*.ipynb*

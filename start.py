@@ -43,6 +43,7 @@ driver.find_element_by_id('txtPassword').send_keys(password)
 driver.find_element_by_id('chkCheck').click()
 
 while(driver.title!="MainLogin"):
+    sleep(1/2)
     captcha = getCaptcha()
     driver.find_element_by_id('txtCaptcha').send_keys(captcha)
     driver.find_element_by_id('btnLogin').click()
@@ -56,5 +57,49 @@ while(driver.title!="MainLogin"):
 driver.get("https://erp.mitwpu.edu.in/STUDENT/SelfAttendence.aspx?MENU_CODE=MWEBSTUATTEN_SLF_ATTEN")
 df = pd.read_html(driver.page_source)
 driver.close()
+
 table = df[0]
+table = table.iloc[:, 1:]
+are = table.to_numpy()
+
+calc_flag = 0
+while calc_flag==0:
+    req = float(input("What's your target for attendece (75 to 100) : "))
+    if req < 75 or req > 100:
+        print('Read question carefully')
+    else:
+        calc_flag = 1
+
+subcount = 0
+stat = []
+for sub in are:
+    if sub[3] != 0:
+        attended = sub[2]
+        total = sub[3]
+        attendence = attended / total * 100
+        count=-1
+        if attendence >= req:
+            while attendence >= req:
+                total += 1
+                attendence = attended / total * 100
+                count +=1
+            status = 'you can bunk '+str(count)+' lecture'
+            if count != 1:
+                status += 's'
+        else:
+            while attendence <= req:
+                total +=1
+                attended += 1
+                count += 1
+                attendence = attended / total * 100
+            status = 'You have to attend '+str(count)+' lecture'
+            if count != 1:
+                status += 's'
+    else:
+        status = 'You have to attend 1 lecture'
+    stat.append(status)
+    subcount += 1
+table['Status']=stat
+table = table.fillna('')
+print('')
 print(table)
