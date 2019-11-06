@@ -1,6 +1,6 @@
-For linux only rn \
+For linux only rn (always update your linux distro to latest version) \
 for MITWPU students only \
-prerequisites : python3, selenium, geckodriver, pytesseract, pillow, tesserect-ocr\
+prerequisites : python3, selenium, geckodriver, firefox, pytesseract, pillow, tesserect-ocr\
  \
 It gives Attendence as an output in terminal (no need of manual captcha solving) \
  \
