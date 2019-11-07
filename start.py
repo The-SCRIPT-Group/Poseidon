@@ -7,10 +7,11 @@ from time import sleep
 import pandas as pd
 import uuid
 import os
+import getpass
 
 captcha_file = str(uuid.uuid4().hex)+'.png'
 userName = str(input("Enter Username : "))
-password = str(input("Enter Password : "))
+password = getpass.getpass(prompt='Enter Password : ', stream=None)
 options = Options()
 options.headless = True
 driver = webdriver.Firefox(options=options)
