@@ -1,5 +1,4 @@
 selenium
 pillow
 pytesseract
-tesseract-ocr
 pandas

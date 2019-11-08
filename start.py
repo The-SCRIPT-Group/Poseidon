@@ -11,36 +11,12 @@ import getpass
 from base64 import b64decode
 
 captcha_file = str(uuid.uuid4().hex)+'.png'
-userName = str(input("Enter Username : "))
-password = getpass.getpass(prompt='Enter Password : ', stream=None)
+userName = input("Enter Username : ").strip()
+password = getpass.getpass(prompt='Enter Password : ', stream=None).strip()
 options = Options()
 options.headless = False
-driver = webdriver.Firefox(options=options)
+driver = webdriver.Firefox(options=options) if not os.getenv("USE_CHROME") else webdriver.Chrome()
 driver.get("https://erp.mitwpu.edu.in/")
-
-def getCaptcha():
-    element = driver.find_element_by_id('imgCaptcha')
-    location = element.location
-    size = element.size
-    captchaImage = driver.get_screenshot_as_png()
-    im = Image.open(BytesIO(captchaImage))
-    left = location['x']
-    top = location['y']
-    right = location['x'] + size['width']
-    bottom = location['y'] + size['height']
-    im = im.crop((left, top, right, bottom))
-    im.save(captcha_file)
-
-    img = Image.open(captcha_file).convert("L")
-    pixel_matrix = img.load()
-    for col in range(0, img.height):
-        for row in range(0, img.width):
-            if pixel_matrix[row, col] != 0:
-                pixel_matrix[row, col] = 255
-    captcha = str(pytesseract.image_to_string(img, lang="eng", \
-        config='--psm 10 --oem 3 -c tessedit_char_whitelist=0123456789abcdef'))
-    os.remove(captcha_file)
-    return captcha
 
 driver.find_element_by_id('txtUserId').send_keys(userName)
 driver.find_element_by_id('txtPassword').send_keys(password)
