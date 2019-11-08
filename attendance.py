@@ -15,15 +15,8 @@ load_dotenv()
 
 app = Flask(__name__)
 
-captcha_file = str(uuid.uuid4().hex) + '.png'
-username, password = os.getenv("erp_user"), os.getenv("erp_pass")
-if username is None:
-    username = input("Enter Username : ").strip()
-if password is None:
-    password = getpass.getpass(prompt='Enter Password : ', stream=None)
-
-
 def get_details(username, password, desired_attendance):
+    captcha_file = str(uuid.uuid4().hex) + '.png'
     if os.getenv("USE_CHROME"):
         options = chrome.options.Options()
         options.headless = False
