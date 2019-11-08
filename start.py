@@ -8,6 +8,7 @@ import pandas as pd
 import uuid
 import os
 import getpass
+from base64 import b64decode
 
 captcha_file = str(uuid.uuid4().hex)+'.png'
 userName = str(input("Enter Username : "))
@@ -47,8 +48,11 @@ driver.find_element_by_id('chkCheck').click()
 
 while(driver.title!="MainLogin"):
     sleep(1/2)
-    captcha = getCaptcha()
-    driver.find_element_by_id('txtCaptcha').send_keys(captcha)
+    img = driver.find_element_by_id('imgCaptcha').get_attribute('src')[22:]
+    with open('captcha.png', 'wb') as captcha:
+        captcha.write(b64decode(img))
+    captcha_text = pytesseract.image_to_string('captcha.png')
+    driver.find_element_by_id('txtCaptcha').send_keys(captcha_text)
     driver.find_element_by_id('btnLogin').click()
     try:
         alert = driver.switch_to.alert
