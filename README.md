@@ -26,7 +26,7 @@ cd /usr/share/tessdata/
 sudo wget https://github.com/tesseract-ocr/tessdata/raw/master/eng.traineddata
 ```
 ```sh
-git clone https://github.com/prkprime/erp_attendence_scraper.git
-cd erp_attendence_scraper
+git clone https://github.com/prkprime/erp_attendance_scraper.git
+cd erp_attendance_scraper
 python3 start.py
 ```

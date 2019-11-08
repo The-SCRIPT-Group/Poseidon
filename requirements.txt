@@ -4,3 +4,4 @@ pytesseract
 pandas
 lxml
 python-dotenv
+flask
