@@ -23,7 +23,7 @@ if password is None:
     password = getpass.getpass(prompt='Enter Password : ', stream=None)
 
 
-def get_details(username, password):
+def get_details(username, password, desired_attendance):
     if os.getenv("USE_CHROME"):
         options = chrome.options.Options()
         options.headless = False
@@ -47,7 +47,6 @@ def get_details(username, password):
             captcha.write(b64decode(img))
         captcha_text = pytesseract.image_to_string(captcha_file,
                                                    config="--psm 10 --oem 3 -c tessedit_char_whitelist=0123456789abcdef")
-        print(captcha_text)
         driver.find_element_by_id('txtCaptcha').send_keys(captcha_text)
         driver.find_element_by_id('btnLogin').click()
         try:
@@ -63,18 +62,18 @@ def get_details(username, password):
     os.remove(captcha_file)
 
     table = df[0]
-    return table.to_json()
     table = table.iloc[:, 1:]
     are = table.to_numpy()
 
-    calc_flag = 0
-    while calc_flag == 0:
-        req = float(input("What's your target for attendance (75 to 100) : "))
-        if req < 75 or req > 100:
-            print('Read question carefully')
-        else:
-            calc_flag = 1
+#    calc_flag = 0
+#    while calc_flag == 0:
+#        req = float(input("What's your target for attendance (75 to 100) : "))
+#        if req < 75 or req > 100:
+#            print('Read question carefully')
+#        else:
+#            calc_flag = 1
 
+    req = desired_attendance
     subcount = 0
     stat = []
     for sub in are:
@@ -108,15 +107,20 @@ def get_details(username, password):
     table = table.fillna('')
     print('')
     print(table)
-
-    print(table.to_json())
+    return table.to_json()
 
 
 @app.route("/api/attendance", methods=["POST"])
 def attendance():
     username = request.form["username"]
     password = request.form["password"]
-    return get_details(username, password)
+    desired_attendance = 75
+    try:
+        desired_attendance = float(request.form['desired_attendance'])
+    except KeyError:
+        pass
+    return get_details(username, password, desired_attendance)
+
 
 if __name__ == "__main__":
     app.run()
