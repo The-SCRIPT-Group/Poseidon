@@ -6,3 +6,4 @@ MainLogin_files
 temp.*
 *.csv
 *.ipynb*
+venv
