@@ -43,7 +43,7 @@ while (driver.title != "MainLogin"):
     img = driver.find_element_by_id('imgCaptcha').get_attribute('src')[22:]
     with open(captcha_file, 'wb') as captcha:
         captcha.write(b64decode(img))
-    captcha_text = pytesseract.image_to_string('captcha.png', config="-c tessedit_char_whitelist=0123456789abcdef")
+    captcha_text = pytesseract.image_to_string(captcha_file, config="--psm 10 --oem 3 -c tessedit_char_whitelist=0123456789abcdef" )
     print(captcha_text)
     driver.find_element_by_id('txtCaptcha').send_keys(captcha_text)
     driver.find_element_by_id('btnLogin').click()
