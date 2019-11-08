@@ -7,4 +7,6 @@ temp.*
 *.csv
 *.ipynb*
 venv
-.png
+*.png
+.env
+.idea

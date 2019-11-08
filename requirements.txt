@@ -2,3 +2,5 @@ selenium
 pillow
 pytesseract
 pandas
+lxml
+python-dotenv
