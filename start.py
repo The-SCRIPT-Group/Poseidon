@@ -105,29 +105,3 @@ print('')
 print(table)
 
 print(table.to_json())
-jsonify(are)
-
-subjects = []
-subject_type = []
-present = []
-total = []
-percent = []
-
-
-def jsonify(data):
-    for i in data:
-        subjects.append(i[0])
-        subject_type.append(i[1])
-        present.append(i[2])
-        total.append(i[3])
-        percent.append(i[4])
-
-    data = {
-        "subjects": subjects,
-        "subject_type": subject_type,
-        "present": present,
-        "total": total,
-        "percent": percent,
-    }
-
-    print(data)
