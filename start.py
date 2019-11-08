@@ -14,7 +14,7 @@ captcha_file = str(uuid.uuid4().hex)+'.png'
 userName = str(input("Enter Username : "))
 password = getpass.getpass(prompt='Enter Password : ', stream=None)
 options = Options()
-options.headless = True
+options.headless = False
 driver = webdriver.Firefox(options=options)
 driver.get("https://erp.mitwpu.edu.in/")
 
@@ -51,7 +51,9 @@ while(driver.title!="MainLogin"):
     img = driver.find_element_by_id('imgCaptcha').get_attribute('src')[22:]
     with open('captcha.png', 'wb') as captcha:
         captcha.write(b64decode(img))
-    captcha_text = pytesseract.image_to_string('captcha.png')
+    captcha_text = pytesseract.image_to_string('captcha.png', lang="eng", \
+        config='--psm 10 --oem 3 -c tessedit_char_whitelist=0123456789abcdef')
+    print(captcha_text)
     driver.find_element_by_id('txtCaptcha').send_keys(captcha_text)
     driver.find_element_by_id('btnLogin').click()
     try:
