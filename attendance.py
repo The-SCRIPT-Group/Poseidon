@@ -27,6 +27,7 @@ def get_details(username, password, desired_attendance):
         options.add_argument("--disable-gpu")
         options.add_argument("--no-sandbox")
         options.add_argument("--headless")
+        options.add_argument('--disable-dev-shm-usage') 
         if os.getenv("GOOGLE_CHROME_PATH") is not None:
             options.binary_location = os.getenv("GOOGLE_CHROME_PATH")
         if os.getenv("CHROMEDRIVER_PATH") is not None:
