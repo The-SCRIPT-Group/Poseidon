@@ -1,4 +1,3 @@
-import getpass
 import os
 import uuid
 from base64 import b64decode
@@ -9,20 +8,24 @@ import pytesseract
 from dotenv import load_dotenv
 from flask import Flask, request
 from selenium import webdriver
-from selenium.webdriver import firefox, chrome
 
 load_dotenv()
 
 app = Flask(__name__)
 
+
 def get_details(username, password, desired_attendance):
     captcha_file = str(uuid.uuid4().hex) + '.png'
     if os.getenv("USE_CHROME"):
-        options = chrome.options.Options()
-        options.headless = False
-        driver = webdriver.Chrome(options=options)
+        options = webdriver.ChromeOptions()
+        options.add_argument("--disable-gpu")
+        options.add_argument("--no-sandbox")
+        options.add_argument("--headless")
+        if os.getenv("GOOGLE_CHROME_PATH") is not None:
+            options.binary_location = os.getenv("GOOGLE_CHROME_PATH")
+        driver = webdriver.Chrome(chrome_options=options)
     else:
-        options = firefox.options.Options()
+        options = webdriver.FirefoxOptions
         options.headless = False
         driver = webdriver.Firefox(options=options)
 
@@ -58,14 +61,6 @@ def get_details(username, password, desired_attendance):
     table = table.iloc[:, 1:]
     are = table.to_numpy()
 
-#    calc_flag = 0
-#    while calc_flag == 0:
-#        req = float(input("What's your target for attendance (75 to 100) : "))
-#        if req < 75 or req > 100:
-#            print('Read question carefully')
-#        else:
-#            calc_flag = 1
-
     req = desired_attendance
     subcount = 0
     stat = []
@@ -98,8 +93,6 @@ def get_details(username, password, desired_attendance):
         subcount += 1
     table['Status'] = stat
     table = table.fillna('')
-    print('')
-    print(table)
     return table.to_json()
 
 
