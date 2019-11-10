@@ -1,7 +1,8 @@
-selenium
+flask
+gunicorn
+lxml
+pandas
 pillow
 pytesseract
-pandas
-lxml
 python-dotenv
-flask
+selenium
