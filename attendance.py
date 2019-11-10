@@ -27,7 +27,10 @@ def get_details(username, password, desired_attendance):
         options.add_argument("--headless")
         if os.getenv("GOOGLE_CHROME_PATH") is not None:
             options.binary_location = os.getenv("GOOGLE_CHROME_PATH")
-        driver = webdriver.Chrome(chrome_options=options)
+        if os.getenv("CHROMEDRIVER_PATH") is not None:
+            driver = webdriver.Chrome(chrome_options=options, executable_path=os.getenv("CHROMEDRIVER_PATH"))
+        else:
+            driver = webdriver.Chrome(chrome_options=options)
 
     driver.get("https://erp.mitwpu.edu.in/")
     driver.execute_script('document.getElementsByTagName("body")[0].removeAttribute("style")')
