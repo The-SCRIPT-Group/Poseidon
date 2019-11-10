@@ -60,7 +60,7 @@ def get_details(username, password, desired_attendance):
 
     driver.get("https://erp.mitwpu.edu.in/STUDENT/SelfAttendence.aspx?MENU_CODE=MWEBSTUATTEN_SLF_ATTEN")
     df = pd.read_html(driver.page_source)
-    driver.close()
+    driver.quit()
     os.remove(captcha_file)
 
     table = df[0]
