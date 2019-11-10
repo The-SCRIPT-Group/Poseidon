@@ -16,7 +16,11 @@ app = Flask(__name__)
 
 def get_details(username, password, desired_attendance):
     captcha_file = str(uuid.uuid4().hex) + '.png'
-    if os.getenv("USE_CHROME"):
+    if os.getenv("USE_FIREFOX"):
+        options = webdriver.FirefoxOptions
+        options.headless = False
+        driver = webdriver.Firefox(options=options)
+    else:
         options = webdriver.ChromeOptions()
         options.add_argument("--disable-gpu")
         options.add_argument("--no-sandbox")
@@ -24,12 +28,8 @@ def get_details(username, password, desired_attendance):
         if os.getenv("GOOGLE_CHROME_PATH") is not None:
             options.binary_location = os.getenv("GOOGLE_CHROME_PATH")
         driver = webdriver.Chrome(chrome_options=options)
-    else:
-        options = webdriver.FirefoxOptions
-        options.headless = False
-        driver = webdriver.Firefox(options=options)
 
-    driver.get("https://erp.mitwpu.edu.in/", )
+    driver.get("https://erp.mitwpu.edu.in/")
     driver.execute_script('document.getElementsByTagName("body")[0].removeAttribute("style")')
 
     driver.find_element_by_id('txtUserId').send_keys(username)
