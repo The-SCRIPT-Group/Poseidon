@@ -11,6 +11,8 @@ from selenium import webdriver
 
 load_dotenv()
 
+pytesseract.pytesseract.tesseract_cmd = '/app/.apt/usr/bin/tesseract'
+
 app = Flask(__name__)
 
 
