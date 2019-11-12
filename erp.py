@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import os
+
 import pytesseract as loki
 import requests
 import json
@@ -21,7 +23,7 @@ with requests.session() as s:
         img = json.loads(data)["d"]
         with open(captcha_file, "wb") as captcha:
             captcha.write(b64decode(img))
-        captcha_text = loki.image_to_string("captcha.png")
+        captcha_text = loki.image_to_string(captcha_file)
     print(f"Captcha is {captcha_text}")
 
     payload = {
@@ -56,7 +58,7 @@ with requests.session() as s:
     with open("response.html", "w") as f:
         f.write(
             s.get(
-                "https://erp.mitwpu.edu.in/MainNew.aspx?Usertype=STUDENT&modulecode=WEBSTUDACS&Userselect=S#"
+                "https://erp.mitwpu.edu.in/STUDENT/SelfAttendence.aspx?MENU_CODE=MWEBSTUATTEN_SLF_ATTEN"
             ).text
         )
 os.remove(captcha_file)
