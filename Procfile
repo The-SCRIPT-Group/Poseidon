@@ -1,1 +1,1 @@
-web: gunicorn attendance:app
+web: gunicorn api:app
