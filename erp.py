@@ -3,10 +3,12 @@ import pytesseract as loki
 import requests
 import json
 from base64 import b64decode
+from uuid import uuid4
 
 username = "S1032170015"
 password = input("Enter password: ")
 
+captcha_file = str(uuid4().hex) + ".png"
 with requests.session() as s:
     headers = {"Content-Type": "application/json; charset=utf-8"}
 
@@ -17,7 +19,7 @@ with requests.session() as s:
             headers=headers,
         ).text
         img = json.loads(data)["d"]
-        with open("captcha.png", "wb") as captcha:
+        with open(captcha_file, "wb") as captcha:
             captcha.write(b64decode(img))
         captcha_text = loki.image_to_string("captcha.png")
     print(f"Captcha is {captcha_text}")
@@ -57,3 +59,4 @@ with requests.session() as s:
                 "https://erp.mitwpu.edu.in/MainNew.aspx?Usertype=STUDENT&modulecode=WEBSTUDACS&Userselect=S#"
             ).text
         )
+os.remove(captcha_file)
