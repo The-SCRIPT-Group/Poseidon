@@ -6,3 +6,4 @@ pillow
 pytesseract
 python-dotenv
 requests
+html5lib
