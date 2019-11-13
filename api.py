@@ -25,7 +25,7 @@ def view_attendance():
 
 @app.route('/')
 def root():
-    return redirect(url_for('attendance'))
+    return redirect(url_for('get_attendance'))
 
 
 if __name__ == "__main__":
