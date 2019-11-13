@@ -2,6 +2,7 @@
 import os
 from base64 import b64decode
 from json import dumps, loads
+from re import search, DOTALL
 from uuid import uuid4
 
 import pytesseract as loki
@@ -18,41 +19,58 @@ payload = {
 
 def attendance(username, password):
     captcha_file = str(uuid4().hex) + ".png"
+    count = 0
 
-    with requests.session() as s:
-        captcha_text = ""
-        while captcha_text == "":
-            headers = {"Content-Type": "application/json; charset=utf-8"}
-            data = s.post(
-                "https://erp.mitwpu.edu.in/AdminLogin.aspx/funGenerateCaptcha",
-                headers=headers,
+    while True:
+        with requests.session() as s:
+            captcha_text = ""
+            while captcha_text == "":
+                headers = {"Content-Type": "application/json; charset=utf-8"}
+                data = s.post(
+                    "https://erp.mitwpu.edu.in/AdminLogin.aspx/funGenerateCaptcha",
+                    headers=headers,
+                ).text
+                img = loads(data)["d"]
+                with open(captcha_file, "wb") as captcha:
+                    captcha.write(b64decode(img))
+                captcha_text = loki.image_to_string(captcha_file,
+                                                    config="--psm 10 --oem 3 -c tessedit_char_whitelist=0123456789abcdef")
+            os.remove(captcha_file)
+
+            payload['txtUserId'] = username
+            payload["txtPassword"] = password
+            payload["txtCaptcha"] = captcha_text
+
+            # Headers for logging in and fetching the data
+            headers["Content-Type"] = "application/x-www-form-urlencoded; charset=utf-8"
+            headers["User-Agent"] = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) " \
+                                    "Chrome/77.0.3865.120 Safari/537.36"
+            # POST request to log in
+            s.post(
+                "https://erp.mitwpu.edu.in/AdminLogin.aspx", headers=headers, data=payload
+            )
+
+            data = s.get(
+                "https://erp.mitwpu.edu.in/STUDENT/SelfAttendence.aspx?MENU_CODE=MWEBSTUATTEN_SLF_ATTEN"
             ).text
-            img = loads(data)["d"]
-            with open(captcha_file, "wb") as captcha:
-                captcha.write(b64decode(img))
-            captcha_text = loki.image_to_string(captcha_file,
-                                                config="--psm 10 --oem 3 -c tessedit_char_whitelist=0123456789abcdef")
-        os.remove(captcha_file)
-
-        payload['txtUserId'] = username
-        payload["txtPassword"] = password
-        payload["txtCaptcha"] = captcha_text
-
-        # Headers for logging in and fetching the data
-        headers["Content-Type"] = "application/x-www-form-urlencoded; charset=utf-8"
-        headers["User-Agent"] = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) " \
-                                "Chrome/77.0.3865.120 Safari/537.36"
-        # POST request to log in
-        s.post(
-            "https://erp.mitwpu.edu.in/AdminLogin.aspx", headers=headers, data=payload
-        )
-        return s.get(
-            "https://erp.mitwpu.edu.in/STUDENT/SelfAttendence.aspx?MENU_CODE=MWEBSTUATTEN_SLF_ATTEN"
-        ).text
+            title = search('(?<=<title>).+?(?=</title>)', data, DOTALL).group().strip()
+            if title == 'Self Attendance Report':
+                return data
+            count += 1
+            if title == 'LOGIN' and count > 5:
+                return "Error"
 
 
 def attendance_json(username, password):
-    table = read_html(attendance(username, password))[0]
+    while True:
+        attendance_data = attendance(username, password)
+        if attendance_data == "Error":
+            return dumps({"status": "error"})
+        try:
+            table = read_html(attendance_data)[0]
+        except ValueError:
+            continue
+        break
 
     data = list()
 
