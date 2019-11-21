@@ -7,6 +7,8 @@ app = Flask(__name__)
 
 @app.route('/api/attendance', methods=['POST'])
 def get_attendance():
+    if 'username' in request.form.keys():
+        print(f"Username received {request.form['username']}")
     return attendance_json(request.form['username'], request.form['password'])
 
 
