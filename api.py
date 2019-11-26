@@ -7,8 +7,8 @@ app = Flask(__name__)
 
 @app.route('/api/attendance', methods=['POST'])
 def get_attendance():
-    if 'username' in request.form.keys():
-        print(f"Username received {request.form['username']}")
+    if 'username' not in request.form.keys() or 'password' not in request.form.keys():
+        return "Please provide all details if you want your attendance", 400
     return attendance_json(request.form['username'], request.form['password'])
 
 
