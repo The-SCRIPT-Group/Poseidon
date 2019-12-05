@@ -15,7 +15,7 @@ server {
         root /var/www/html;
     }
     location / {
-        return 301 https://poseidon.thescriptgroup.in$request_uri;
+        return 301 https://poseidon.thescriptgroup.in;
     }
 }
 
@@ -29,8 +29,16 @@ server {
 
     location ^~ / {
         proxy_pass        http://127.0.0.1:5501;
+        proxy_redirect    off;
+
+        proxy_set_header   Host                 \$host;
+        proxy_set_header   X-Real-IP            \$remote_addr;
+        proxy_set_header   X-Forwarded-For      \$proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto    \$scheme;
+       
     }
 }
+
 EOF
 sudo ln -s /etc/nginx/sites-available/poseidon.thescriptgroup.in /etc/nginx/sites-enabled/poseidon.thescriptgroup.in
 sudo rm -fv /etc/nginx/sites-{available,enabled}/default
