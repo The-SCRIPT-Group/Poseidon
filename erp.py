@@ -77,13 +77,15 @@ def attendance_json(username, password):
     for i in range(len(table['SrNo'])):
         if str(table['SrNo'][i]) == 'nan':
             break
+        elif i > 0 and str(table['Subject'][i]) == str(table['Subject'][i - 1]):
+            data[-1][str(table['Subject Type'][i]) + '_present'] = int(table['Present'][i])
+            data[-1][str(table['Subject Type'][i]) + '_total'] = int(table['Total Period'][i])
         else:
             data.append(
                 {
                     'subject': str(table['Subject'][i]),
-                    'type': str(table['Subject Type'][i]),
-                    'present': int(table['Present'][i]),
-                    'total': int(table['Total Period'][i])
+                    str(table['Subject Type'][i]) + '_present': int(table['Present'][i]),
+                    str(table['Subject Type'][i]) + '_total': int(table['Total Period'][i])
                 }
             )
 
