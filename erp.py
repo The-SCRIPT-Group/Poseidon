@@ -92,7 +92,8 @@ def attendance_json(username, password):
                     str(table['Subject Type'][i].lower()) + '_total': int(table['Total Period'][i]),
                     str(table['Subject Type'][i].lower()) + '_missed': int(table['Total Period'][i]) - int(
                         table['Present'][i]),
-
+                    str(table['Subject Type'][i].lower()) + '_percent': round(
+                        ((int(table['Present'][i])) / int(table['Total Period'][i])) * 100, 2)
                 }
             )
 
