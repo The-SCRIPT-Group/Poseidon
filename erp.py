@@ -80,20 +80,12 @@ def attendance_json(username, password):
         elif i > 0 and str(table['Subject'][i]) == str(table['Subject'][i - 1]):
             data[-1][str(table['Subject Type'][i].lower()) + '_present'] = int(table['Present'][i])
             data[-1][str(table['Subject Type'][i].lower()) + '_total'] = int(table['Total Period'][i])
-            data[-1][str(table['Subject Type'][i].lower()) + '_missed'] = int(table['Total Period'][i]) - int(
-                table['Present'][i])
-            data[-1][str(table['Subject Type'][i].lower()) + '_percent'] = round(
-                ((int(table['Present'][i])) / int(table['Total Period'][i])) * 100, 2)
         else:
             data.append(
                 {
                     'subject': str(table['Subject'][i]),
                     str(table['Subject Type'][i].lower()) + '_present': int(table['Present'][i]),
                     str(table['Subject Type'][i].lower()) + '_total': int(table['Total Period'][i]),
-                    str(table['Subject Type'][i].lower()) + '_missed': int(table['Total Period'][i]) - int(
-                        table['Present'][i]),
-                    str(table['Subject Type'][i].lower()) + '_percent': round(
-                        ((int(table['Present'][i])) / int(table['Total Period'][i])) * 100, 2)
                 }
             )
 
