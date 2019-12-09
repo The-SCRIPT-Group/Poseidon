@@ -1,4 +1,4 @@
-# ERP Attendance Scraper
+# Poseidon - ERP Attendance Scraper
 
 ##### To get your environment setup with the required libraries
 
