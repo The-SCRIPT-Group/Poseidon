@@ -54,10 +54,12 @@ def attendance(username, password):
                 "https://erp.mitwpu.edu.in/STUDENT/SelfAttendence.aspx?MENU_CODE=MWEBSTUATTEN_SLF_ATTEN"
             ).text
             title = search('(?<=<title>).+?(?=</title>)', data, DOTALL).group().strip()
+            count += 1
+            if "AdminLogin.aspx" in data and count < 5:
+                continue
             if title == 'Self Attendance Report':
                 return data
-            count += 1
-            if title == 'LOGIN' and count > 5:
+            if count > 5:
                 return "Error"
 
 
