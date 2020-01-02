@@ -26,10 +26,13 @@ def attendance(username, password):
             captcha_text = ""
             while captcha_text == "":
                 headers = {"Content-Type": "application/json; charset=utf-8"}
-                data = s.post(
+                response = s.post(
                     "https://erp.mitwpu.edu.in/AdminLogin.aspx/funGenerateCaptcha",
                     headers=headers,
-                ).text
+                )
+                if response.status_code != 200:
+                    return "ERP is down!"
+                data = response.text
                 img = loads(data)["d"]
                 with open(captcha_file, "wb") as captcha:
                     captcha.write(b64decode(img))
@@ -92,10 +95,12 @@ def attendance_json(username, password):
     while True:
         attendance_data = attendance(username, password)
         if attendance_data == "Error":
-            return dumps({"status": "error"})
+            return dumps({"response": "error"})
+        if attendance_data == "ERP is down!":
+            return dumps({"response": attendance_data})
         ret = get_attendance(attendance_data)
         if ret == "Error":
-            return dumps({"status": "error"})
+            return dumps({"response": "error"})
         break
 
     data = list()

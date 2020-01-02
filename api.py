@@ -1,4 +1,3 @@
-from requests import get
 from flask import Flask, request, redirect, url_for, jsonify
 
 from erp import attendance, attendance_json
@@ -8,8 +7,6 @@ app = Flask(__name__)
 
 @app.route('/api/attendance', methods=['POST'])
 def get_attendance():
-    if get("https://erp.mitwpu.edu.in").status_code != 200:
-        return jsonify({"response": "ERP is down"})
     if 'username' not in request.form.keys() or 'password' not in request.form.keys():
         return "Please provide all details if you want your attendance", 400
     return attendance_json(request.form['username'], request.form['password'])
@@ -17,8 +14,6 @@ def get_attendance():
 
 @app.route('/attendance', methods=['GET', 'POST'])
 def view_attendance():
-    if get("https://erp.mitwpu.edu.in").status_code != 200:
-        return "ERP is down!"
     if request.method == 'POST':
         return attendance(request.form['username'], request.form['password'])
     return """
