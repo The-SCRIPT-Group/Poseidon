@@ -80,17 +80,8 @@ def get_attendance(data):
             attendance[titles[1]] = ret[-1][titles[1]]
             for element in range(len(row.findAll('td'))):
                 attendance[titles[element + 2]] = row.findAll('td')[element].text.strip()
-        elif len(row) == 5:
-            for element in range(1, len(row.findAll('td'))):
-                attendance[titles[element]] = row.findAll('td')[element].text.strip()
         else:
-            print("*" * 100)
-            print("Houston, we have a problem")
-            print(len(row))
-            print(element)
-            print(row)
-            print(row.findAll('td')[element])
-            print("*" * 100)
+            continue
         ret.append(attendance)
     return ret
 
