@@ -1,9 +1,6 @@
 bs4
 flask
 gunicorn
-html5lib
-lxml
-pandas
 pillow
 pytesseract
 python-dotenv

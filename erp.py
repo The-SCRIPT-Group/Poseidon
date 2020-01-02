@@ -7,7 +7,7 @@ from uuid import uuid4
 
 import pytesseract as loki
 import requests
-from pandas import read_html
+from bs4 import BeautifulSoup
 
 payload = {
     "__VIEWSTATE": "/wEPDwULLTE5ODI5MDAxMzMPFgIeDkxPR0lOX0JBU0VEX09OZRYCAgEPZBYCAgMPZBYCZg9kFgYCDw9kFgICAQ8QZA8WAWYWARAFA1dQVQUDV1BVZxYBZmQCEw8PFgIeB0VuYWJsZWRnZGQCGQ9kFgICAQ8QZGQWAWZkGAEFHl9fQ29udHJvbHNSZXF1aXJlUG9zdEJhY2tLZXlfXxYBBQhjaGtDaGVja+/IxmsP3IoCwjVYbsmN45kfOjGivX4s7e93RISZwDsW",
@@ -61,31 +61,64 @@ def attendance(username, password):
                 return "Error"
 
 
+def get_attendance(data):
+    soup = BeautifulSoup(data)
+    tables = soup.findAll("table")
+    if len(tables) != 4:
+        return "Error"
+    table = tables[1]
+    titles = [h.text for h in table.find("thead").find('tr')]
+    body = table.find('tbody')
+    ret = []
+    for row in body.findAll('tr'):
+        attendance = {}
+        if len(row) == 6:
+            for element in range(len(row.findAll('td'))):
+                attendance[titles[element]] = row.findAll('td')[element].text.strip()
+        elif len(row) == 4:
+            attendance[titles[0]] = ret[-1][titles[0]]
+            attendance[titles[1]] = ret[-1][titles[1]]
+            for element in range(len(row.findAll('td'))):
+                attendance[titles[element + 2]] = row.findAll('td')[element].text.strip()
+        elif len(row) == 5:
+            for element in range(1, len(row.findAll('td'))):
+                attendance[titles[element]] = row.findAll('td')[element].text.strip()
+        else:
+            print("*" * 100)
+            print("Houston, we have a problem")
+            print(len(row))
+            print(element)
+            print(row)
+            print(row.findAll('td')[element])
+            print("*" * 100)
+        ret.append(attendance)
+    return ret
+
+
 def attendance_json(username, password):
     while True:
         attendance_data = attendance(username, password)
         if attendance_data == "Error":
             return dumps({"status": "error"})
-        try:
-            table = read_html(attendance_data)[0]
-        except ValueError:
-            continue
+        ret = get_attendance(attendance_data)
+        if ret == "Error":
+            return dumps({"status": "error"})
         break
 
     data = list()
-
-    for i in range(len(table['SrNo'])):
-        if str(table['SrNo'][i]) == 'nan':
+    table = ret
+    for i in range(len(table)):
+        if "SrNo" not in table[i].keys():
             break
-        elif i > 0 and str(table['Subject'][i]) == str(table['Subject'][i - 1]):
-            data[-1][str(table['Subject Type'][i].lower()) + '_present'] = int(table['Present'][i])
-            data[-1][str(table['Subject Type'][i].lower()) + '_total'] = int(table['Total Period'][i])
+        elif i > 0 and str(table[i]['Subject']) == str(table[i - 1]['Subject']):
+            data[-1][str(table[i]['Subject Type'].lower()) + '_present'] = int(table[i]['Present'])
+            data[-1][str(table[i]['Subject Type'].lower()) + '_total'] = int(table[i]['Total Period'])
         else:
             data.append(
                 {
-                    'subject': str(table['Subject'][i]),
-                    str(table['Subject Type'][i].lower()) + '_present': int(table['Present'][i]),
-                    str(table['Subject Type'][i].lower()) + '_total': int(table['Total Period'][i]),
+                    'subject': str(table[i]['Subject']),
+                    str(table[i]['Subject Type'].lower()) + '_present': int(table[i]['Present']),
+                    str(table[i]['Subject Type'].lower()) + '_total': int(table[i]['Total Period']),
                 }
             )
 
