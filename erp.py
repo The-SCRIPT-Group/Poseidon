@@ -95,10 +95,10 @@ def attendance_json(username, password):
     while True:
         attendance_data = attendance(username, password)
         if attendance_data in ("ERP is down!", "Wrong credentials!"):
-            return dumps({"response": attendance_data})
+            return dumps([{"response": attendance_data}])
         ret = get_attendance(attendance_data)
         if ret == "Error":
-            return dumps({"response": "Error parsing attendance!"})
+            return dumps([{"response": "Error parsing attendance!"}])
         break
 
     data = list()
