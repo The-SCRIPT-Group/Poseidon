@@ -67,7 +67,7 @@ def attendance(username, password):
 
 
 def get_attendance(data):
-    soup = BeautifulSoup(data)
+    soup = BeautifulSoup(data, features="html.parser")
     tables = soup.findAll("table")
     if len(tables) != 4:
         return "Error"
