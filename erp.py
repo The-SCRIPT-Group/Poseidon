@@ -58,12 +58,12 @@ def attendance(username, password):
             ).text
             title = search('(?<=<title>).+?(?=</title>)', data, DOTALL).group().strip()
             count += 1
-            if "AdminLogin.aspx" in data and count < 5:
+            if "AdminLogin.aspx" in data and count < 10:
                 continue
-            if title == 'Self Attendance Report':
+            if title == 'Self Attendance Report' and "AdminLogin.aspx" not in data:
                 return data
-            if count > 5:
-                return "Error"
+            if count >= 10:
+                return "Wrong credentials!"
 
 
 def get_attendance(data):
@@ -94,13 +94,11 @@ def get_attendance(data):
 def attendance_json(username, password):
     while True:
         attendance_data = attendance(username, password)
-        if attendance_data == "Error":
-            return dumps({"response": "error"})
-        if attendance_data == "ERP is down!":
+        if attendance_data in ("ERP is down!", "Wrong credentials!"):
             return dumps({"response": attendance_data})
         ret = get_attendance(attendance_data)
         if ret == "Error":
-            return dumps({"response": "error"})
+            return dumps({"response": "Error parsing attendance!"})
         break
 
     data = list()
