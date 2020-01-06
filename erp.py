@@ -16,6 +16,12 @@ payload = {
     "__VIEWSTATEGENERATOR": "B8B84CAE",
 }
 
+ERRORS = {
+    "e": "ERP is down!",
+    "w": "Wrong credentials!",
+    "c": "Captcha issue! Please refresh!",
+}
+
 
 def attendance(username, password):
     captcha_file = str(uuid4().hex) + ".png"
@@ -31,7 +37,7 @@ def attendance(username, password):
                     headers=headers,
                 )
                 if response.status_code != 200:
-                    return "ERP is down!"
+                    return "e"
                 data = response.text
                 img = loads(data)["d"]
                 with open(captcha_file, "wb") as captcha:
@@ -49,9 +55,12 @@ def attendance(username, password):
             headers["User-Agent"] = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) " \
                                     "Chrome/77.0.3865.120 Safari/537.36"
             # POST request to log in
-            s.post(
+            response = s.post(
                 "https://erp.mitwpu.edu.in/AdminLogin.aspx", headers=headers, data=payload
             )
+
+            if "USER Id/ Password Mismatch" in response.text:
+                return "w"
 
             data = s.get(
                 "https://erp.mitwpu.edu.in/STUDENT/SelfAttendence.aspx?MENU_CODE=MWEBSTUATTEN_SLF_ATTEN"
@@ -63,7 +72,7 @@ def attendance(username, password):
             if title == 'Self Attendance Report' and "AdminLogin.aspx" not in data:
                 return data
             if count >= 10:
-                return "Wrong credentials!"
+                return "c"
 
 
 def get_attendance(data):
@@ -94,8 +103,8 @@ def get_attendance(data):
 def attendance_json(username, password):
     while True:
         attendance_data = attendance(username, password)
-        if attendance_data in ("ERP is down!", "Wrong credentials!"):
-            return dumps([{"response": attendance_data}])
+        if attendance_data in ERRORS.keys():
+            return dumps([{"response": ERRORS[attendance_data]}])
         ret = get_attendance(attendance_data)
         if ret == "Error":
             return dumps([{"response": "Error parsing attendance!"}])
