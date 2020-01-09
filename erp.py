@@ -23,7 +23,7 @@ ERRORS = {
 }
 
 
-def attendance(username, password):
+def get_erp_data(username, password, param):
     captcha_file = str(uuid4().hex) + ".png"
     count = 0
 
@@ -62,9 +62,7 @@ def attendance(username, password):
             if "USER Id/ Password Mismatch" in response.text:
                 return "w"
 
-            data = s.get(
-                "https://erp.mitwpu.edu.in/STUDENT/SelfAttendence.aspx?MENU_CODE=MWEBSTUATTEN_SLF_ATTEN"
-            ).text
+            data = s.get(f"https://erp.mitwpu.edu.in/student/{param}.aspx").text
             title = search('(?<=<title>).+?(?=</title>)', data, DOTALL).group().strip()
             count += 1
             if "AdminLogin.aspx" in data and count < 10:
@@ -73,6 +71,14 @@ def attendance(username, password):
                 return data
             if count >= 10:
                 return "c"
+
+
+def attendance(username, password):
+    return get_erp_data(username, password, "SelfAttendance")
+
+
+def timetable(username, password):
+    return get_erp_data(username, password, "StudentSelfTimeTable")
 
 
 def get_attendance(data):

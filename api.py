@@ -1,10 +1,15 @@
-from flask import Flask, request, redirect, url_for, jsonify
-
 from random import choice
 
-from erp import attendance, attendance_json
+from flask import Flask, request, redirect, url_for
+
+from erp import attendance, attendance_json, timetable
 
 app = Flask(__name__)
+
+methods = {
+    "attendance": attendance,
+    "timetable": timetable,
+}
 
 
 @app.route('/api/attendance', methods=['POST'])
@@ -22,14 +27,19 @@ def get_attendance():
     return attendance_json(username, password)
 
 
-@app.route('/attendance', methods=['GET', 'POST'])
-def view_attendance():
+@app.route('/web', methods=['GET', 'POST'])
+def web():
     if request.method == 'POST':
-        return attendance(request.form['username'], request.form['password'])
+        return methods[request.form["page"]](request.form["username"], request.form["password"])
     return """
         <form action="" method="POST">
             <p><input type="text" name="username" required>
             <p><input type="password" name="password" required>
+            <p>
+            <select required name=page>
+                <option value=attendance selected>Attendance</option>
+                <option value=timetable>Timetable</option>
+            </select>
             <p><input type="submit" value="Login">
         </form>
         """
@@ -37,7 +47,7 @@ def view_attendance():
 
 @app.route('/')
 def root():
-    return redirect(url_for('view_attendance'))
+    return redirect(url_for('web'))
 
 
 if __name__ == "__main__":
