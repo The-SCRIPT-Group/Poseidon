@@ -74,7 +74,7 @@ def get_erp_data(username, password, param):
 
 
 def attendance(username, password):
-    return get_erp_data(username, password, "SelfAttendance")
+    return get_erp_data(username, password, "SelfAttendence")
 
 
 def timetable(username, password):
