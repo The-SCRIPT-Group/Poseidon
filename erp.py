@@ -9,6 +9,11 @@ import pytesseract as loki
 import requests
 from bs4 import BeautifulSoup
 
+"""
+Required for login to ERP
+chkCheck is pretty simple, just checking the "I am not a robot checkbox"
+But the other 3 are something with ASP.NET that we need to decode/figure out someday
+"""
 payload = {
     "__VIEWSTATE": "/wEPDwULLTE5ODI5MDAxMzMPFgIeDkxPR0lOX0JBU0VEX09OZRYCAgEPZBYCAgMPZBYCZg9kFgYCDw9kFgICAQ8QZA8WAWYWARAFA1dQVQUDV1BVZxYBZmQCEw8PFgIeB0VuYWJsZWRnZGQCGQ9kFgICAQ8QZGQWAWZkGAEFHl9fQ29udHJvbHNSZXF1aXJlUG9zdEJhY2tLZXlfXxYBBQhjaGtDaGVja+/IxmsP3IoCwjVYbsmN45kfOjGivX4s7e93RISZwDsW",
     "__EVENTTARGET": "btnLogin",
@@ -16,6 +21,7 @@ payload = {
     "__VIEWSTATEGENERATOR": "B8B84CAE",
 }
 
+# Just to easily get error messages, because these can be repeated
 ERRORS = {
     "e": "ERP is down!",
     "w": "Wrong credentials!",
@@ -23,13 +29,32 @@ ERRORS = {
 }
 
 
-def get_erp_data(username, password, param):
+def get_erp_data(username: str, password: str, param: str) -> str:
+    """
+    Parameters
+    ----------
+    username - ERP ID
+    password - ERP Password
+    param - Page of ERP to be loaded
+
+    Returns
+    -------
+    Page's HTML content if succesful, else corresponding error code
+    """
+
+    # Store captcha in a random file for each session
     captcha_file = str(uuid4().hex) + ".png"
+
+    # We give up after 10 tries
     count = 0
 
     while True:
+
+        # Use the same session so that login actually persists
         with requests.session() as s:
             captcha_text = ""
+
+            # Keep fetching and parsing a captcha until we receive some text
             while captcha_text == "":
                 headers = {"Content-Type": "application/json; charset=utf-8"}
                 response = s.post(
@@ -40,12 +65,17 @@ def get_erp_data(username, password, param):
                     return "e"
                 data = response.text
                 img = loads(data)["d"]
+
+                # Write the base64 encoded image to a file
                 with open(captcha_file, "wb") as captcha:
                     captcha.write(b64decode(img))
+
+                # Use tesseract-ocr to read the captcha text
                 captcha_text = loki.image_to_string(captcha_file,
                                                     config="--psm 10 --oem 3 -c tessedit_char_whitelist=0123456789abcdef")
             os.remove(captcha_file)
 
+            # Set the payload for the actual login part
             payload['txtUserId'] = username
             payload["txtPassword"] = password
             payload["txtCaptcha"] = captcha_text
@@ -54,76 +84,155 @@ def get_erp_data(username, password, param):
             headers["Content-Type"] = "application/x-www-form-urlencoded; charset=utf-8"
             headers["User-Agent"] = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) " \
                                     "Chrome/77.0.3865.120 Safari/537.36"
+
             # POST request to log in
             response = s.post(
                 "https://erp.mitwpu.edu.in/AdminLogin.aspx", headers=headers, data=payload
             )
 
+            # Upon entering wrong credentials, ERP gives us a popup containing this text
             if "USER Id/ Password Mismatch" in response.text:
                 return "w"
 
+            # Retrieve the page content
             data = s.get(f"https://erp.mitwpu.edu.in/student/{param}.aspx").text
+
+            # Check the title of retrieved page
             title = search('(?<=<title>).+?(?=</title>)', data, DOTALL).group().strip()
+
+            # Increment count so we can break out after 10 tries and assume captcha reading failed
             count += 1
+
+            # A reference to AdminLogin.aspx means login failed. Since the credentials are correct, is it most likely
+            # captcha
             if "AdminLogin.aspx" in data and count < 10:
                 continue
+
+            # For attendance and timetable, this is the page title
+            # However even wrong captcha page has the same title, so ensure no traces of AdminLogin.aspx
             if title == 'Self Attendance Report' and "AdminLogin.aspx" not in data:
                 return data
+
+            # At this point, all we can do is give up and assume that reading the catpcha fail
+            # There is also the possibility of ERP forcing a password change or something similar, that needs to be
+            # accounted for
             if count >= 10:
                 return "c"
 
 
-def attendance(username, password):
+def attendance(username: str, password: str) -> str:
+    """
+
+    Parameters
+    ----------
+    username -> ERP ID
+    password -> ERP Password
+
+    Returns
+    -------
+    Either error code, or attendance page data
+    """
     return get_erp_data(username, password, "SelfAttendence")
 
 
-def timetable(username, password):
+def timetable(username: str, password: str) -> str:
+    """
+
+    Parameters
+    ----------
+    username -> ERP ID
+    password -> ERP Password
+
+    Returns
+    -------
+    Either error code, or timetable page data
+    """
     return get_erp_data(username, password, "StudentSelfTimeTable")
 
 
-def get_attendance(data):
+def get_attendance(data: str) -> list:
+    """
+
+    Parameters
+    ----------
+    data -> Attendance HTML page to be parsed
+
+    Returns
+    -------
+    List of dicts containing attendance data
+    """
     soup = BeautifulSoup(data, features="html.parser")
     tables = soup.findAll("table")
+
+    # ERP Attendance page contains 4 tables
     if len(tables) != 4:
-        return "Error"
+        return ["Error"]
+
+    # Attendance data is in the second table
     table = tables[1]
+
+    # Get all the table titles
     titles = [h.text for h in table.find("thead").find('tr')]
+
+    # Get the table body
     body = table.find('tbody')
     ret = []
+
+    # Iterate over all the rows in the body to get the actual data
     for row in body.findAll('tr'):
         attendance = {}
+        # Length 6 contains subject name and serial number as well
         if len(row) == 6:
             for element in range(len(row.findAll('td'))):
                 attendance[titles[element]] = row.findAll('td')[element].text.strip()
+        # Length 4 means its the 2nd row for the subject, so need the previous subject name
         elif len(row) == 4:
             attendance[titles[0]] = ret[-1][titles[0]]
             attendance[titles[1]] = ret[-1][titles[1]]
             for element in range(len(row.findAll('td'))):
                 attendance[titles[element + 2]] = row.findAll('td')[element].text.strip()
+        # Any other structure means its one of the totals which is easier to compute on our own than parse
         else:
             continue
         ret.append(attendance)
     return ret
 
 
-def attendance_json(username, password):
+def attendance_json(username: str, password: str) -> str:
+    """
+
+    Parameters
+    ----------
+    username -> ERP ID
+    password -> ERP Password
+
+    Returns
+    -------
+    JSON body containing attendance data
+    """
+
+    # Keep trying to get attendance until we succeed or hit one of our error messages
     while True:
         attendance_data = attendance(username, password)
         if attendance_data in ERRORS.keys():
             return dumps([{"response": ERRORS[attendance_data]}])
         ret = get_attendance(attendance_data)
-        if ret == "Error":
+        if ret == ["Error"]:
             return dumps([{"response": "Error parsing attendance!"}])
         break
 
+    # Convert the data BeautifulSoup gave us into a list of dicts
     data = list()
     table = ret
     for i in range(len(table)):
+        # Ignore serial number
         if "SrNo" not in table[i].keys():
             break
+        # Practical / Tutorial
         elif i > 0 and str(table[i]['Subject']) == str(table[i - 1]['Subject']):
             data[-1][str(table[i]['Subject Type'].lower()) + '_present'] = int(table[i]['Present'])
             data[-1][str(table[i]['Subject Type'].lower()) + '_total'] = int(table[i]['Total Period'])
+        # Theory lecture
         else:
             data.append(
                 {
@@ -132,5 +241,5 @@ def attendance_json(username, password):
                     str(table[i]['Subject Type'].lower()) + '_total': int(table[i]['Total Period']),
                 }
             )
-
+    # Return the data after calling json.dumps() on it
     return dumps(data)
