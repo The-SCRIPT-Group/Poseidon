@@ -26,6 +26,7 @@ ERRORS = {
     "e": "ERP is down!",
     "w": "Wrong credentials!",
     "c": "Captcha issue! Please refresh!",
+    "r": "Record not found!"
 }
 
 
@@ -102,6 +103,10 @@ def get_erp_data(username: str, password: str, param: str) -> str:
 
             # Increment count so we can break out after 10 tries and assume captcha reading failed
             count += 1
+
+            # Before a new trimester starts, ERP records are seemingly wiped
+            if "Record Not Found" in data:
+                return "r"
 
             # A reference to AdminLogin.aspx means login failed. Since the credentials are correct, is it most likely
             # captcha
