@@ -26,7 +26,7 @@ ERRORS = {
     "e": "ERP is down!",
     "w": "Wrong credentials!",
     "c": "Captcha issue! Please refresh!",
-    "r": "Record not found!"
+    "r": "Record not found!",
 }
 
 
@@ -72,23 +72,29 @@ def get_erp_data(username: str, password: str, param: str) -> str:
                     captcha.write(b64decode(img))
 
                 # Use tesseract-ocr to read the captcha text
-                captcha_text = loki.image_to_string(captcha_file,
-                                                    config="--psm 10 --oem 3 -c tessedit_char_whitelist=0123456789abcdef")
+                captcha_text = loki.image_to_string(
+                    captcha_file,
+                    config="--psm 10 --oem 3 -c tessedit_char_whitelist=0123456789abcdef",
+                )
             os.remove(captcha_file)
 
             # Set the payload for the actual login part
-            payload['txtUserId'] = username
+            payload["txtUserId"] = username
             payload["txtPassword"] = password
             payload["txtCaptcha"] = captcha_text
 
             # Headers for logging in and fetching the data
             headers["Content-Type"] = "application/x-www-form-urlencoded; charset=utf-8"
-            headers["User-Agent"] = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) " \
-                                    "Chrome/77.0.3865.120 Safari/537.36"
+            headers["User-Agent"] = (
+                "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/77.0.3865.120 Safari/537.36"
+            )
 
             # POST request to log in
             response = s.post(
-                "https://erp.mitwpu.edu.in/AdminLogin.aspx", headers=headers, data=payload
+                "https://erp.mitwpu.edu.in/AdminLogin.aspx",
+                headers=headers,
+                data=payload,
             )
 
             # Upon entering wrong credentials, ERP gives us a popup containing this text
@@ -99,7 +105,7 @@ def get_erp_data(username: str, password: str, param: str) -> str:
             data = s.get(f"https://erp.mitwpu.edu.in/student/{param}.aspx").text
 
             # Check the title of retrieved page
-            title = search('(?<=<title>).+?(?=</title>)', data, DOTALL).group().strip()
+            title = search("(?<=<title>).+?(?=</title>)", data, DOTALL).group().strip()
 
             # Increment count so we can break out after 10 tries and assume captcha reading failed
             count += 1
@@ -115,7 +121,7 @@ def get_erp_data(username: str, password: str, param: str) -> str:
 
             # For attendance and timetable, this is the page title
             # However even wrong captcha page has the same title, so ensure no traces of AdminLogin.aspx
-            if title == 'Self Attendance Report' and "AdminLogin.aspx" not in data:
+            if title == "Self Attendance Report" and "AdminLogin.aspx" not in data:
                 return data
 
             # At this point, all we can do is give up and assume that reading the catpcha fail
@@ -177,25 +183,27 @@ def get_attendance(data: str) -> list:
     table = tables[1]
 
     # Get all the table titles
-    titles = [h.text for h in table.find("thead").find('tr')]
+    titles = [h.text for h in table.find("thead").find("tr")]
 
     # Get the table body
-    body = table.find('tbody')
+    body = table.find("tbody")
     ret = []
 
     # Iterate over all the rows in the body to get the actual data
-    for row in body.findAll('tr'):
+    for row in body.findAll("tr"):
         attendance = {}
         # Length 6 contains subject name and serial number as well
         if len(row) == 6:
-            for element in range(len(row.findAll('td'))):
-                attendance[titles[element]] = row.findAll('td')[element].text.strip()
+            for element in range(len(row.findAll("td"))):
+                attendance[titles[element]] = row.findAll("td")[element].text.strip()
         # Length 4 means its the 2nd row for the subject, so need the previous subject name
         elif len(row) == 4:
             attendance[titles[0]] = ret[-1][titles[0]]
             attendance[titles[1]] = ret[-1][titles[1]]
-            for element in range(len(row.findAll('td'))):
-                attendance[titles[element + 2]] = row.findAll('td')[element].text.strip()
+            for element in range(len(row.findAll("td"))):
+                attendance[titles[element + 2]] = row.findAll("td")[
+                    element
+                ].text.strip()
         # Any other structure means its one of the totals which is easier to compute on our own than parse
         else:
             continue
@@ -234,16 +242,22 @@ def attendance_json(username: str, password: str) -> str:
         if "SrNo" not in table[i].keys():
             break
         # Practical / Tutorial
-        elif i > 0 and str(table[i]['Subject']) == str(table[i - 1]['Subject']):
-            data[-1][str(table[i]['Subject Type'].lower()) + '_present'] = int(table[i]['Present'])
-            data[-1][str(table[i]['Subject Type'].lower()) + '_total'] = int(table[i]['Total Period'])
+        elif i > 0 and str(table[i]["Subject"]) == str(table[i - 1]["Subject"]):
+            data[-1][str(table[i]["Subject Type"].lower()) + "_present"] = int(
+                table[i]["Present"]
+            )
+            data[-1][str(table[i]["Subject Type"].lower()) + "_total"] = int(
+                table[i]["Total Period"]
+            )
         # Theory lecture
         else:
             data.append(
                 {
-                    'subject': str(table[i]['Subject']),
-                    str(table[i]['Subject Type'].lower()) + '_present': int(table[i]['Present']),
-                    str(table[i]['Subject Type'].lower()) + '_total': int(table[i]['Total Period']),
+                    "subject": str(table[i]["Subject"]),
+                    str(table[i]["Subject Type"].lower())
+                    + "_present": int(table[i]["Present"]),
+                    str(table[i]["Subject Type"].lower())
+                    + "_total": int(table[i]["Total Period"]),
                 }
             )
     # Return the data after calling json.dumps() on it

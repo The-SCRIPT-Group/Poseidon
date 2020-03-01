@@ -4,17 +4,25 @@ from flask import Flask, request, redirect, url_for
 
 from erp import attendance, attendance_json, timetable
 
+# Initialize our Flask application
 app = Flask(__name__)
 
+# Map our methods to the string returned by webpage to make function calls easier
 methods = {
     "attendance": attendance,
     "timetable": timetable,
 }
 
 
-@app.route('/api/attendance', methods=['POST'])
+@app.route("/api/attendance", methods=["POST"])
 def get_attendance():
-    if 'username' not in request.form.keys() or 'password' not in request.form.keys():
+    """
+    # Route for attendance API
+    Returns
+    -------
+    JSON with person's attendance OR error message
+    """
+    if "username" not in request.form.keys() or "password" not in request.form.keys():
         return "Please provide all details if you want your attendance", 400
     username = request.form["username"]
     password = request.form["password"]
@@ -27,10 +35,18 @@ def get_attendance():
     return attendance_json(username, password)
 
 
-@app.route('/web', methods=['GET', 'POST'])
+@app.route("/web", methods=["GET", "POST"])
 def web():
-    if request.method == 'POST':
-        return methods[request.form["page"]](request.form["username"], request.form["password"])
+    """
+    A small frontend which lets you view attendance or timetable in a browser
+    Returns
+    -------
+
+    """
+    if request.method == "POST":
+        return methods[request.form["page"]](
+            request.form["username"], request.form["password"]
+        )
     return """
         <form action="" method="POST">
             <p><input type="text" name="username" required>
@@ -45,9 +61,15 @@ def web():
         """
 
 
-@app.route('/')
+@app.route("/")
 def root():
-    return redirect(url_for('web'))
+    """
+    Root of the site
+    Returns
+    -------
+    Redirects you to /web
+    """
+    return redirect(url_for("web"))
 
 
 if __name__ == "__main__":
