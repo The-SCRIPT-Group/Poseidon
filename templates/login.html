@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Poseidon</title>
+    <link rel="apple-touch-icon" sizes="180x180"
+          href="{{ url_for(endpoint='static', filename='images/apple-touch-icon.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32"
+          href="{{ url_for(endpoint='static', filename='images/favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16"
+          href="{{ url_for(endpoint='static', filename='images/favicon-16x16.png') }}">
+    <link rel="manifest" href="{{ url_for(endpoint='static', filename='images/site.webmanifest') }}">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/css/materialize.min.css">
+    <script type="text/javascript"
+            src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/js/materialize.min.js">
+    </script>
+    <script>
+        $(document).ready(function () {
+            $('select').material_select();
+        });
+    </script>
+
+    <link rel="stylesheet" href="{{ url_for(endpoint='static', filename='css/main.css') }}">
+</head>
+<body>
+<div class="card container">
+    <div class="card-content row">
+        <div class="row"
+             style="margin-left: auto; margin-right: auto; width: fit-content; width: -moz-fit-content;">
+            <img class="responsive-img"
+                 src="https://raw.githubusercontent.com/The-SCRIPT-Group/Media-Kit/master/LogoTransp2.png" alt="">
+        </div>
+        <form action="" method="POST" class="col s12" id="reg-form">
+            <div class="row">
+                <div class="input-field">
+                    <input id="username" name="username" type="text" class="white-text" required>
+                    <label for="username">Username</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="input-field">
+                    <input id="password" name="password" type="password" class="white-text" required>
+                    <label for="password">Password</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="input-field">
+                    <label for="page"></label>
+                    <select id="page" name="page" class="white-text" required>
+                        <option value="attendance" selected>Attendance</option>
+                        <option value="timetable">Timetable</option>
+                    </select>
+                </div>
+            </div>
+            <div class="input-field"
+                 style="margin-left: auto; margin-right: auto; width: fit-content; width: -moz-fit-content;">
+                <button class="btn btn-large btn-register waves-effect waves-light" type="submit" name="action"
+                        style="margin-left: auto; margin-right: auto">
+                    Login
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>
