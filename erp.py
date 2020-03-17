@@ -12,7 +12,7 @@ from bs4 import BeautifulSoup
 """
 Required for login to ERP
 chkCheck is pretty simple, just checking the "I am not a robot checkbox"
-__VIEWSTATE,__VIEWSTATEGENERATOR are for hiden values in form
+__VIEWSTATE,__VIEWSTATEGENERATOR are for hidden values in form
 """
 payload = {
     "__VIEWSTATE": "/wEPDwULLTE5ODI5MDAxMzMPFgIeDkxPR0lOX0JBU0VEX09OZRYCAgEPZBYCAgMPZBYCZg9kFgYCDw9kFgICAQ8QZA8WAWYWARAFA1dQVQUDV1BVZxYBZmQCEw8PFgIeB0VuYWJsZWRnZGQCGQ9kFgICAQ8QZGQWAWZkGAEFHl9fQ29udHJvbHNSZXF1aXJlUG9zdEJhY2tLZXlfXxYBBQhjaGtDaGVja+/IxmsP3IoCwjVYbsmN45kfOjGivX4s7e93RISZwDsW",
