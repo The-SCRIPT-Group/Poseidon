@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import os
+from PIL import Image
 from base64 import b64decode
+from io import BytesIO
 from json import dumps, loads
 from re import search, DOTALL
 from uuid import uuid4
@@ -67,16 +69,14 @@ def get_erp_data(username: str, password: str, param: str) -> str:
                 data = response.text
                 img = loads(data)["d"]
 
-                # Write the base64 encoded image to a file
-                with open(captcha_file, "wb") as captcha:
-                    captcha.write(b64decode(img))
-
+                stream=BytesIO(b64decode(img))
                 # Use tesseract-ocr to read the captcha text
+                image=Image.open(stream)
+                
                 captcha_text = loki.image_to_string(
-                    captcha_file,
+                    image,
                     config="--psm 10 --oem 3 -c tessedit_char_whitelist=0123456789abcdef",
                 )
-            os.remove(captcha_file)
 
             # Set the payload for the actual login part
             payload["txtUserId"] = username
