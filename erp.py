@@ -12,7 +12,7 @@ from bs4 import BeautifulSoup
 """
 Required for login to ERP
 chkCheck is pretty simple, just checking the "I am not a robot checkbox"
-But the other 3 are something with ASP.NET that we need to decode/figure out someday
+__VIEWSTATE,__VIEWSTATEGENERATOR are for hidden values in form
 """
 payload = {
     "__VIEWSTATE": "/wEPDwULLTE5ODI5MDAxMzMPFgIeDkxPR0lOX0JBU0VEX09OZRYCAgEPZBYCAgMPZBYCZg9kFgYCDw9kFgICAQ8QZA8WAWYWARAFA1dQVQUDV1BVZxYBZmQCEw8PFgIeB0VuYWJsZWRnZGQCGQ9kFgICAQ8QZGQWAWZkGAEFHl9fQ29udHJvbHNSZXF1aXJlUG9zdEJhY2tLZXlfXxYBBQhjaGtDaGVja+/IxmsP3IoCwjVYbsmN45kfOjGivX4s7e93RISZwDsW",
@@ -85,10 +85,6 @@ def get_erp_data(username: str, password: str, param: str) -> str:
 
             # Headers for logging in and fetching the data
             headers["Content-Type"] = "application/x-www-form-urlencoded; charset=utf-8"
-            headers["User-Agent"] = (
-                "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) "
-                "Chrome/77.0.3865.120 Safari/537.36"
-            )
 
             # POST request to log in
             response = s.post(
