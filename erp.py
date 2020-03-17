@@ -69,10 +69,10 @@ def get_erp_data(username: str, password: str, param: str) -> str:
                 data = response.text
                 img = loads(data)["d"]
 
-                stream=BytesIO(b64decode(img))
+                stream = BytesIO(b64decode(img))
                 # Use tesseract-ocr to read the captcha text
-                image=Image.open(stream)
-                
+                image = Image.open(stream)
+
                 captcha_text = loki.image_to_string(
                     image,
                     config="--psm 10 --oem 3 -c tessedit_char_whitelist=0123456789abcdef",
