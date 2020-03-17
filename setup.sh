@@ -27,6 +27,11 @@ server {
     include /etc/letsencrypt/options-ssl-nginx.conf;
     ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
+    location /static {
+        root /home/akhil/Poseidon;
+        try_files $uri $uri/ =404;
+    }
+
     location ^~ / {
         proxy_pass        http://127.0.0.1:5501;
         proxy_redirect    off;
