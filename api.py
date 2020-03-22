@@ -2,7 +2,7 @@ from random import choice
 
 from flask import Flask, request, redirect, url_for, render_template
 
-from erp import attendance, attendance_json, timetable
+from erp import attendance, attendance_json, timetable, miscellaneous
 
 # Initialize our Flask application
 app = Flask(__name__)
@@ -11,6 +11,7 @@ app = Flask(__name__)
 methods = {
     "attendance": attendance,
     "timetable": timetable,
+    "miscellaneous": miscellaneous,
 }
 
 
@@ -47,19 +48,7 @@ def web():
         return methods[request.form["page"]](
             request.form["username"], request.form["password"]
         )
-    # return """
-    #     <form action="" method="POST">
-    #         <p><input type="text" name="username" required>
-    #         <p><input type="password" name="password" required>
-    #         <p>
-    #         <select required name=page>
-    #             <option value=attendance selected>Attendance</option>
-    #             <option value=timetable>Timetable</option>
-    #         </select>
-    #         <p><input type="submit" value="Login">
-    #     </form>
-    #     """
-    return render_template('login.html')
+    return render_template("login.html")
 
 
 @app.route("/")

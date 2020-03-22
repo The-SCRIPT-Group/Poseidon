@@ -31,8 +31,13 @@ ERRORS = {
     "r": "Record not found!",
 }
 
+# List of valid titles
+VALID_TITLES = {"Self Attendance Report", "MainLogin"}
 
-def get_erp_data(username: str, password: str, param: str) -> str:
+
+def get_erp_data(
+    username: str, password: str, param: str, parent: str = "student"
+) -> str:
     """
     Parameters
     ----------
@@ -98,7 +103,9 @@ def get_erp_data(username: str, password: str, param: str) -> str:
                 return "w"
 
             # Retrieve the page content
-            data = s.get(f"https://erp.mitwpu.edu.in/student/{param}.aspx").text
+            data = s.get(
+                f"https://erp.mitwpu.edu.in/{os.path.join(parent, param)}.aspx"
+            ).text
 
             # Check the title of retrieved page
             title = search("(?<=<title>).+?(?=</title>)", data, DOTALL).group().strip()
@@ -117,7 +124,7 @@ def get_erp_data(username: str, password: str, param: str) -> str:
 
             # For attendance and timetable, this is the page title
             # However even wrong captcha page has the same title, so ensure no traces of AdminLogin.aspx
-            if title == "Self Attendance Report" and "AdminLogin.aspx" not in data:
+            if title in VALID_TITLES and "AdminLogin.aspx" not in data:
                 return data
 
             # At this point, all we can do is give up and assume that reading the catpcha fail
@@ -155,6 +162,21 @@ def timetable(username: str, password: str) -> str:
     Either error code, or timetable page data
     """
     return get_erp_data(username, password, "StudentSelfTimeTable")
+
+
+def miscellaneous(username: str, password: str) -> str:
+    """
+
+    Parameters
+    ----------
+    username -> ERP ID
+    password -> ERP Password
+
+    Returns
+    -------
+    Either error code, or miscellaneous data
+    """
+    return get_erp_data(username, password, "MainNew", "")
 
 
 def get_attendance(data: str) -> list:
