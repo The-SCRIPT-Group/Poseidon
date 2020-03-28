@@ -11,6 +11,34 @@ import pytesseract as loki
 import requests
 from bs4 import BeautifulSoup
 
+from telegram import TG
+
+api_key = os.getenv("TELEGRAM_API_KEY")
+chat_id = os.getenv("TELEGRAM_CHAT_ID")
+
+tg = TG(api_key)
+
+
+def log(user: str, data: str, captcha: str, param: str):
+    """
+    A function to parse some data and send it to our log channel on Telegram
+    :param user: ERP User ID
+    :param data: HTML content of the erroneous page
+    :param captcha: The last tried captcha text
+    :param param: The name of the asp document that was being accessed
+    :return: Nothing, tbh
+    """
+    if api_key is None or chat_id is None:
+        return
+    document = f"{user}.html"
+    with open(document, "w") as f:
+        f.write(data)
+
+    tg.send_message(chat_id, f"<b>Poseidon</b>:\nUser {user}\nCaptcha {captcha}")
+    tg.send_document(chat_id, param, document)
+    os.remove(document)
+
+
 """
 Required for login to ERP
 chkCheck is pretty simple, just checking the "I am not a robot checkbox"
@@ -113,6 +141,11 @@ def get_erp_data(
             # Increment count so we can break out after 10 tries and assume captcha reading failed
             count += 1
 
+            # For attendance and timetable, this is the page title
+            # However even wrong captcha page has the same title, so ensure no traces of AdminLogin.aspx
+            if title in VALID_TITLES and "AdminLogin.aspx" not in data:
+                return data
+
             # Before a new trimester starts, ERP records are seemingly wiped
             if "Record Not Found" in data:
                 return "r"
@@ -122,12 +155,9 @@ def get_erp_data(
             if "AdminLogin.aspx" in data and count < 10:
                 continue
 
-            # For attendance and timetable, this is the page title
-            # However even wrong captcha page has the same title, so ensure no traces of AdminLogin.aspx
-            if title in VALID_TITLES and "AdminLogin.aspx" not in data:
-                return data
+            log(username, data, captcha_text, param)
 
-            # At this point, all we can do is give up and assume that reading the catpcha fail
+            # At this point, all we can do is give up and assume that reading the captcha fail
             # There is also the possibility of ERP forcing a password change or something similar, that needs to be
             # accounted for
             if count >= 10:
