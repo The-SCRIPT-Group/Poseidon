@@ -155,12 +155,11 @@ def get_erp_data(
             if "AdminLogin.aspx" in data and count < 10:
                 continue
 
-            log(username, data, captcha_text, param)
-
             # At this point, all we can do is give up and assume that reading the captcha fail
             # There is also the possibility of ERP forcing a password change or something similar, that needs to be
             # accounted for
             if count >= 10:
+                log(username, data, captcha_text, param)
                 return "c"
 
 
