@@ -95,7 +95,7 @@ def get_erp_data(
             captcha_text = ""
 
             # Keep fetching and parsing a captcha until we receive some text
-            while captcha_text == "" or len(captcha_text) != 6:
+            while len(captcha_text) != 6:
                 headers = {"Content-Type": "application/json; charset=utf-8"}
                 response = s.post(
                     "https://erp.mitwpu.edu.in/AdminLogin.aspx/funGenerateCaptcha",
