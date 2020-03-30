@@ -5,7 +5,6 @@ from base64 import b64decode
 from io import BytesIO
 from json import dumps, loads
 from re import search, DOTALL
-from uuid import uuid4
 
 import pytesseract as loki
 import requests
@@ -19,24 +18,32 @@ chat_id = os.getenv("TELEGRAM_CHAT_ID")
 tg = TG(api_key)
 
 
-def log(user: str, data: str, captcha: str, param: str):
+def log(user: str, data: str, captcha: str, param: str, captcha_image: Image):
     """
     A function to parse some data and send it to our log channel on Telegram
     :param user: ERP User ID
     :param data: HTML content of the erroneous page
     :param captcha: The last tried captcha text
     :param param: The name of the asp document that was being accessed
+    :param captcha_image: The base64encoded captcha image
     :return: Nothing, tbh
     """
     if api_key is None or chat_id is None:
         return
+
     document = f"{user}.html"
     with open(document, "w") as f:
         f.write(data)
 
-    tg.send_message(chat_id, f"<b>Poseidon</b>:\nUser {user}\nCaptcha {captcha}")
+    image_file = f"{captcha}.png"
+    with open(image_file, "wb") as f:
+        f.write(b64decode(captcha_image))
+
+    tg.send_message(chat_id, f"<b>Poseidon</b>:\nUser {user}")
+    tg.send_image(chat_id, image_file, f"Captcha: {captcha}")
     tg.send_document(chat_id, param, document)
     os.remove(document)
+    os.remove(image_file)
 
 
 """
@@ -75,11 +82,8 @@ def get_erp_data(
 
     Returns
     -------
-    Page's HTML content if succesful, else corresponding error code
+    Page's HTML content if successful, else corresponding error code
     """
-
-    # Store captcha in a random file for each session
-    captcha_file = str(uuid4().hex) + ".png"
 
     # We give up after 10 tries
     count = 0
@@ -159,7 +163,7 @@ def get_erp_data(
             # There is also the possibility of ERP forcing a password change or something similar, that needs to be
             # accounted for
             if count >= 10:
-                log(username, data, captcha_text, param)
+                log(username, data, captcha_text, param, img)
                 return "c"
 
 

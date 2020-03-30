@@ -67,3 +67,12 @@ class TG:
             "parse_mode": parse_mode,
         }
         return self.send("sendDocument", data)
+
+    def send_image(self, chat_id, image_file, caption, disable_notifications=False):
+        data = {
+            "caption": caption,
+            "chat_id": chat_id,
+            "photo": (image_file, open(image_file, "rb").read()),
+            "disable_notification": disable_notifications,
+        }
+        return self.send("sendPhoto", data)
