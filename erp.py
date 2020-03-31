@@ -71,7 +71,11 @@ VALID_TITLES = {"Self Attendance Report", "MainLogin"}
 
 
 def get_erp_data(
-    username: str, password: str, param: str, parent: str = "student"
+    username: str,
+    password: str,
+    param: str,
+    parent: str = "student",
+    name_only: bool = False,
 ) -> str:
     """
     Parameters
@@ -133,6 +137,9 @@ def get_erp_data(
             # Upon entering wrong credentials, ERP gives us a popup containing this text
             if "USER Id/ Password Mismatch" in response.text:
                 return "w"
+
+            if name_only:
+                return get_name(response.text)
 
             # Retrieve the page content
             data = s.get(
@@ -262,6 +269,21 @@ def get_attendance(data: str) -> list:
     return ret
 
 
+def get_name(data: str) -> str:
+    """
+
+    Parameters
+    ----------
+    data -> Attendance HTML page to be parsed
+
+    Returns
+    -------
+    Logged in user's name
+    """
+    soup = BeautifulSoup(data, features="html.parser")
+    return soup.find("span", {"id": "span_username"}).contents[0]
+
+
 def attendance_json(username: str, password: str) -> str:
     """
 
@@ -313,3 +335,18 @@ def attendance_json(username: str, password: str) -> str:
             )
     # Return the data after calling json.dumps() on it
     return dumps(data)
+
+
+def user_name(username: str, password: str) -> str:
+    """
+
+    Parameters
+    ----------
+    username -> ERP ID
+    password -> ERP Password
+
+    Returns
+    -------
+    String with the person's first name
+    """
+    return get_erp_data(username, password, name_only=True)

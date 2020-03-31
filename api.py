@@ -2,7 +2,7 @@ from random import choice
 
 from flask import Flask, request, redirect, url_for, render_template
 
-from erp import attendance, attendance_json, timetable, miscellaneous
+from erp import attendance, attendance_json, timetable, miscellaneous, user_name
 
 # Initialize our Flask application
 app = Flask(__name__)
@@ -34,6 +34,27 @@ def get_attendance():
         ]
         return choice(random_attendance)
     return attendance_json(username, password)
+
+
+@app.route("/api/name", methods=["POST"])
+def get_name():
+    """
+    # Route for getting name from ERP
+    Returns
+    -------
+    Person's name OR error message
+    """
+    if "username" not in request.form.keys() or "password" not in request.form.keys():
+        return "Please provide all details if you want your attendance", 400
+    username = request.form["username"]
+    password = request.form["password"]
+    if username == "S0000000000" and password == "password":
+        names = [
+            "test-user-1",
+            "test-user-2",
+        ]
+        return choice(names)
+    return user_name(username, password)
 
 
 @app.route("/web", methods=["GET", "POST"])
