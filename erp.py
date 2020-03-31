@@ -112,7 +112,7 @@ def get_erp_data(
 
                 captcha_text = loki.image_to_string(
                     image,
-                    config="--psm 10 --oem 3 -c tessedit_char_whitelist=0123456789abcdef",
+                    config="--psm 8 --oem 0 -c tessedit_char_whitelist=0123456789abcdef",
                 )
 
             # Set the payload for the actual login part
