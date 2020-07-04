@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import os
-from PIL import Image
 from base64 import b64decode
 from io import BytesIO
 from json import dumps, loads
@@ -8,6 +7,7 @@ from re import search, DOTALL
 
 import pytesseract as loki
 import requests
+from PIL import Image
 from bs4 import BeautifulSoup
 
 from telegram import TG
@@ -67,7 +67,11 @@ ERRORS = {
 }
 
 # List of valid titles
-VALID_TITLES = {"Self Attendance Report", "MainLogin"}
+VALID_TITLES = {
+    "Self Attendance Report",
+    "MainLogin",
+    "Academic And Non Academic Fees Status",
+}
 
 
 def get_erp_data(
@@ -197,6 +201,21 @@ def timetable(username: str, password: str) -> str:
     return get_erp_data(username, password, "StudentSelfTimeTable")
 
 
+def fees(username: str, password: str) -> str:
+    """
+
+    Parameters
+    ----------
+    username -> ERP ID
+    password -> ERP Password
+
+    Returns
+    -------
+    Either error code, or payable fees page data
+    """
+    return get_erp_data(username, password, "AcademicfeesAll", parent="student")
+
+
 def miscellaneous(username: str, password: str) -> str:
     """
 
@@ -209,7 +228,7 @@ def miscellaneous(username: str, password: str) -> str:
     -------
     Either error code, or miscellaneous data
     """
-    return get_erp_data(username, password, "MainNew", "")
+    return get_erp_data(username, password, "MainNew")
 
 
 def get_attendance(data: str) -> list:

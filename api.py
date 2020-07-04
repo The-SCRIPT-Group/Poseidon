@@ -2,7 +2,7 @@ from random import choice
 
 from flask import Flask, request, redirect, url_for, render_template
 
-from erp import attendance, attendance_json, timetable, miscellaneous
+from erp import attendance, attendance_json, timetable, miscellaneous, fees
 
 # Initialize our Flask application
 app = Flask(__name__)
@@ -11,6 +11,7 @@ app = Flask(__name__)
 methods = {
     "attendance": attendance,
     "timetable": timetable,
+    "fees": fees,
     "miscellaneous": miscellaneous,
 }
 
