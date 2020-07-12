@@ -134,13 +134,16 @@ def get_erp_data(
                 data=payload,
             )
 
-            # Log the actual login attempt
-            if "AdminLogin.aspx" in response.text and count >= 10:
-                log(username, response.text, captcha_text, "AdminLogin", img)
-
             # Upon entering wrong credentials, ERP gives us a popup containing this text
             if "USER Id/ Password Mismatch" in response.text:
                 return "w"
+
+            # Increment count so we can break out after 10 tries and assume captcha reading failed
+            count += 1
+
+            # Log the actual login attempt
+            if "AdminLogin.aspx" in response.text and count >= 10:
+                log(username, response.text, captcha_text, "AdminLogin", img)
 
             # Retrieve the page content
             data = s.get(
@@ -149,9 +152,6 @@ def get_erp_data(
 
             # Check the title of retrieved page
             title = search("(?<=<title>).+?(?=</title>)", data, DOTALL).group().strip()
-
-            # Increment count so we can break out after 10 tries and assume captcha reading failed
-            count += 1
 
             # Before a new trimester starts, ERP records are seemingly wiped
             if "Record Not Found" in data:
