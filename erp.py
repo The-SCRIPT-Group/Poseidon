@@ -18,7 +18,14 @@ chat_id = os.getenv("TELEGRAM_CHAT_ID")
 tg = TG(api_key)
 
 
-def log(user: str, data: str, captcha: str, param: str, captcha_image: Image):
+def log(
+    user: str,
+    data: str,
+    captcha: str,
+    param: str,
+    captcha_image: Image,
+    login_response: str,
+):
     """
     A function to parse some data and send it to our log channel on Telegram
     :param user: ERP User ID
@@ -26,6 +33,7 @@ def log(user: str, data: str, captcha: str, param: str, captcha_image: Image):
     :param captcha: The last tried captcha text
     :param param: The name of the asp document that was being accessed
     :param captcha_image: The base64encoded captcha image
+    :param login_response: The response to the initial login request
     :return: Nothing, tbh
     """
     if api_key is None or chat_id is None:
@@ -35,6 +43,10 @@ def log(user: str, data: str, captcha: str, param: str, captcha_image: Image):
     with open(document, "w") as f:
         f.write(data)
 
+    login_document = "login_response.html"
+    with open(login_document, "w") as f:
+        f.write(login_response)
+
     image_file = f"{captcha}.png"
     with open(image_file, "wb") as f:
         f.write(b64decode(captcha_image))
@@ -42,6 +54,7 @@ def log(user: str, data: str, captcha: str, param: str, captcha_image: Image):
     tg.send_message(chat_id, f"<b>Poseidon</b>:\nUser {user}")
     tg.send_image(chat_id, image_file, f"Captcha: {captcha}")
     tg.send_document(chat_id, param, document)
+    tg.send_document(chat_id, "Login Response", login_document)
     os.remove(document)
     os.remove(image_file)
 
@@ -141,10 +154,6 @@ def get_erp_data(
             # Increment count so we can break out after 10 tries and assume captcha reading failed
             count += 1
 
-            # Log the actual login attempt
-            if "AdminLogin.aspx" in response.text and count >= 10:
-                log(username, response.text, captcha_text, "AdminLogin", img)
-
             # Retrieve the page content
             data = s.get(
                 f"https://erp.mitwpu.edu.in/{os.path.join(parent, param)}.aspx"
@@ -171,7 +180,7 @@ def get_erp_data(
             # There is also the possibility of ERP forcing a password change or something similar, that needs to be
             # accounted for
             if count >= 10:
-                log(username, data, captcha_text, param, img)
+                log(username, data, captcha_text, param, img, response.text)
                 return "c"
 
 
