@@ -1,15 +1,32 @@
 # Poseidon - ERP Attendance Scraper
 
+##### To download the source
+```bash
+git clone https://github.com/The-SCRIPT-Group/Poseidon.git
+```
+
 ##### To get your environment setup with the required libraries
 
-```sh
+```bash
 pip install requirements.txt
 ```
 
-##### To run the application
+##### To update dependencies
 
-```sh
-git clone https://github.com/the-script-group/erp_attendance_scraper.git
-cd erp_attendance_scraper
+```bash
+pip install -U requirements.txt
+```
+
+##### You can install the dependencies in a virtualenv if you so desire
+
+##### To run the application with the flask development server
+
+```bash
 python3 api.py
+```
+
+or with gunicorn
+
+```bash
+gunicorn api:app
 ```
