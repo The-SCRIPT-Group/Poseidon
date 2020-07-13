@@ -8,13 +8,13 @@ git clone https://github.com/The-SCRIPT-Group/Poseidon.git
 ##### To get your environment setup with the required libraries
 
 ```bash
-pip install requirements.txt
+pip install -r requirements.txt
 ```
 
 ##### To update dependencies
 
 ```bash
-pip install -U requirements.txt
+pip install -U -r requirements.txt
 ```
 
 ##### You can install the dependencies in a virtualenv if you so desire
