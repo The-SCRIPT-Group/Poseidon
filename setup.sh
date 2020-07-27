@@ -27,11 +27,11 @@ server {
 
     location /static {
         root /home/deploy/Poseidon;
-        try_files $uri $uri/ =404;
+        try_files \$uri \$uri/ =404;
     }
 
     location ^~ / {
-        add_header \'Access-Control-Allow-Origin\' \'*\';
+        add_header 'Access-Control-Allow-Origin' '*';
 
         proxy_pass        http://127.0.0.1:5501;
         proxy_redirect    off;
