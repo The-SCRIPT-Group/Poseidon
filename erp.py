@@ -9,11 +9,12 @@ import pytesseract as loki
 import requests
 from PIL import Image
 from bs4 import BeautifulSoup
+from decouple import config
 
 from telegram import TG
 
-api_key = os.getenv("TELEGRAM_API_KEY")
-chat_id = os.getenv("TELEGRAM_CHAT_ID")
+api_key = config("TELEGRAM_API_KEY")
+chat_id = config("TELEGRAM_CHAT_ID")
 
 tg = TG(api_key)
 
