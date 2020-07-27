@@ -26,7 +26,7 @@ server {
     }
 
     location /static {
-        root /home/akhil/Poseidon;
+        root /home/deploy/Poseidon;
         try_files $uri $uri/ =404;
     }
 
