@@ -5,7 +5,7 @@
 export DEBIAN_FRONTEND="noninteractive"
 sudo apt update -y
 sudo apt install python3.8 git nginx certbot python3-pip tesseract-ocr tesseract-ocr-eng -y
-sudo certbot --noninteractive --webroot --webroot-path /var/www/html --agree-tos --email akhilnarang@thescriptgroup.in --domain poseidon.thescriptgroup.in
+sudo certbot certonly --noninteractive --webroot --webroot-path /var/www/html --agree-tos --email akhilnarang@thescriptgroup.in --domain poseidon.thescriptgroup.in
 cat << EOF | sudo tee /etc/nginx/sites-available/poseidon.thescriptgroup.in
 server {
     listen 80;
