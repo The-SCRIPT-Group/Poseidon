@@ -154,8 +154,9 @@ def get_erp_data(
 
             # Check for the new useless ratelimits of allowing us to login only every 30 minutes
             if m := search(r'You are allowed to login after \d+ min\.', response.text):
-                ERRORS['ratelimit'] = m.group()
-                return 'ratelimit'
+                error_key = f'{username}-ratelimit'
+                ERRORS[error_key] = m.group()
+                return error_key
 
             # Increment count so we can break out after 10 tries and assume captcha reading failed
             count += 1
