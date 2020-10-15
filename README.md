@@ -41,7 +41,7 @@ import pytesseract as loki
 
 loki.pytesseract.tesseract_cmd = r'C:\Users\USER\AppData\Local\Tesseract-OCR\tesseract.exe'
 ```
-change captcha_text for tesseract-ocr to
+change captcha_text for tesseract-ocr in erp.py to
 
 ```bash
 captcha_text = loki.image_to_string(
