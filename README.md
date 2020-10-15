@@ -30,3 +30,24 @@ or with gunicorn
 ```bash
 gunicorn api:app
 ```
+
+##### On Windows follow these additional steps
+
+
+override tesseract_cmd in erp.py as
+
+```bash
+import pytesseract as loki
+
+loki.pytesseract.tesseract_cmd = r'C:\Users\USER\AppData\Local\Tesseract-OCR\tesseract.exe'
+```
+change captcha_text for tesseract-ocr to
+
+```bash
+captcha_text = loki.image_to_string(
+                    image,
+                    config='--psm 8 --oem 0 -c tessedit_char_whitelist=0123456789abcdef --tessdata-dir "C:\\Users\\USER\\AppData\\Local\\Tesseract-OCR\\tessdata"',
+                )
+```
+
+download eng.traineddata from https://github.com/tesseract-ocr/tessdata/blob/master/eng.traineddata
