@@ -2,7 +2,7 @@ from random import choice
 
 from flask import Flask, request, redirect, url_for, render_template
 
-from erp import attendance, attendance_json, timetable, miscellaneous, fees
+from erp import attendance, attendance_json, timetable, miscellaneous, fees, fees_json
 
 # Initialize our Flask application
 app = Flask(__name__)
@@ -36,6 +36,25 @@ def get_attendance():
         return choice(random_attendance)
     return attendance_json(username, password)
 
+@app.route("/api/fees", methods=["POST"])
+def get_fees():
+    """
+    # Route for Fees API
+    Returns
+    -------
+    JSON with person's fees OR error message
+    """
+    if "username" not in request.form.keys() or "password" not in request.form.keys():
+        return "Please provide all details if you want your fees", 400
+    username = request.form["username"]
+    password = request.form["password"]
+    if username == "S0000000000" and password == "password":
+        random_fees = [
+            '[{"Fees Type": "Structural Fee", "Particulars": "TUITION FEE [1]", "Receivable Amount": "50000", "Received Amount": "50000", "Adjustment": "0", "Outstanding": "0", "Advance": "0"}, {"Fees Type": "Structural Fee", "Particulars": "STUDENT ACTIVITY FEE [1]", "Receivable Amount": "50000", "Received Amount": "50000", "Adjustment": "0", "Outstanding": "0", "Advance": "0"}, {"Fees Type": "Structural Fee", "Particulars": "OTHER ACADEMIC FEES [2]", "Receivable Amount": "8850", "Received Amount": "0", "Adjustment": "0", "Outstanding": "8850", "Advance": "0"}, {"Fees Type": "Structural Fee", "Particulars": "DEVELOPMENT FEE [2]", "Receivable Amount": "29500", "Received Amount": "0", "Adjustment": "0", "Outstanding": "29500", "Advance": "0"}, {"Fees Type": "Structural Fee", "Particulars": "STUDENT ACTIVITY FEE [2]", "Receivable Amount": "150", "Received Amount": "0", "Adjustment": "0", "Outstanding": "150", "Advance": "0"}, {"Fees Type": "Structural Fee", "Particulars": "TUITION FEE [2]", "Receivable Amount": "61500", "Received Amount": "8250", "Adjustment": "0", "Outstanding": "53250", "Advance": "0"}, {"Fees Type": "Structural Fee", "Particulars": "TUITION FEE [3]", "Receivable Amount": "95000", "Received Amount": "0", "Adjustment": "0", "Outstanding": "95000", "Advance": "0"}, {"Fees Type": "Examination", "Particulars": "CAP FEE", "Receivable Amount": "200", "Received Amount": "200", "Adjustment": "0", "Outstanding": "0", "Advance": "0"}, {"Fees Type": "Examination", "Particulars": "EXAM FEE", "Receivable Amount": "1800", "Received Amount": "1800", "Adjustment": "0", "Outstanding": "0", "Advance": "0"}, {"Fees Type": "Examination", "Particulars": "EXAM FEE", "Receivable Amount": "500", "Received Amount": "500", "Adjustment": "0", "Outstanding": "0", "Advance": "0"}, {"Fees Type": "Examination", "Particulars": "STATEMENT OF MARKS FEE", "Receivable Amount": "150", "Received Amount": "150", "Adjustment": "0", "Outstanding": "0", "Advance": "0"}, {"Fees Type": "Non-Structural Fee", "Particulars": "Admission Processing Fees", "Receivable Amount": "200", "Received Amount": "200", "Adjustment": "0", "Outstanding": "0", "Advance": "0"}]',
+            '[{"Fees Type": "Structural Fee", "Particulars": "TUITION FEE [1]", "Receivable Amount": "50000", "Received Amount": "25000", "Adjustment": "0", "Outstanding": "25000", "Advance": "0"}, {"Fees Type": "Structural Fee", "Particulars": "STUDENT ACTIVITY FEE [1]", "Receivable Amount": "50000", "Received Amount": "15000", "Adjustment": "0", "Outstanding": "35000", "Advance": "0"}, {"Fees Type": "Structural Fee", "Particulars": "OTHER ACADEMIC FEES [2]", "Receivable Amount": "8850", "Received Amount": "1000", "Adjustment": "0", "Outstanding": "7850", "Advance": "0"}, {"Fees Type": "Structural Fee", "Particulars": "DEVELOPMENT FEE [2]", "Receivable Amount": "29500", "Received Amount": "3000", "Adjustment": "0", "Outstanding": "26500", "Advance": "0"}, {"Fees Type": "Structural Fee", "Particulars": "STUDENT ACTIVITY FEE [2]", "Receivable Amount": "150", "Received Amount": "150", "Adjustment": "0", "Outstanding": "0", "Advance": "0"}, {"Fees Type": "Structural Fee", "Particulars": "TUITION FEE [2]", "Receivable Amount": "61500", "Received Amount": "8250", "Adjustment": "0", "Outstanding": "53250", "Advance": "0"}, {"Fees Type": "Structural Fee", "Particulars": "TUITION FEE [3]", "Receivable Amount": "95000", "Received Amount": "0", "Adjustment": "0", "Outstanding": "95000", "Advance": "0"}, {"Fees Type": "Examination", "Particulars": "CAP FEE", "Receivable Amount": "200", "Received Amount": "200", "Adjustment": "0", "Outstanding": "0", "Advance": "0"}, {"Fees Type": "Examination", "Particulars": "EXAM FEE", "Receivable Amount": "1800", "Received Amount": "1800", "Adjustment": "0", "Outstanding": "0", "Advance": "0"}, {"Fees Type": "Examination", "Particulars": "EXAM FEE", "Receivable Amount": "500", "Received Amount": "500", "Adjustment": "0", "Outstanding": "0", "Advance": "0"}, {"Fees Type": "Examination", "Particulars": "STATEMENT OF MARKS FEE", "Receivable Amount": "150", "Received Amount": "150", "Adjustment": "0", "Outstanding": "0", "Advance": "0"}, {"Fees Type": "Non-Structural Fee", "Particulars": "Admission Processing Fees", "Receivable Amount": "200", "Received Amount": "100", "Adjustment": "0", "Outstanding": "100", "Advance": "0"}]',
+        ]
+        return choice(random_fees)
+    return fees_json(username, password)
 
 @app.route("/web", methods=["GET", "POST"])
 def web():

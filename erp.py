@@ -13,8 +13,8 @@ from decouple import config
 
 from telegram import TG
 
-api_key = config("TELEGRAM_API_KEY")
-chat_id = config("TELEGRAM_CHAT_ID")
+api_key = None
+chat_id = None
 
 tg = TG(api_key)
 
@@ -130,7 +130,7 @@ def get_erp_data(
 
                 captcha_text = loki.image_to_string(
                     image,
-                    config="--psm 8 --oem 0 -c tessedit_char_whitelist=0123456789abcdef",
+                    config='--psm 8 --oem 0 -c tessedit_char_whitelist=0123456789abcdef --tessdata-dir "C:\\Users\\gjadd\\AppData\\Local\\Tesseract-OCR\\tessdata"',
                 )
 
             # Set the payload for the actual login part
@@ -176,6 +176,7 @@ def get_erp_data(
             # For attendance and timetable, this is the page title
             # However even wrong captcha page has the same title, so ensure no traces of AdminLogin.aspx
             if title in VALID_TITLES and "AdminLogin.aspx" not in data:
+                print(data)
                 return data
 
             # A reference to AdminLogin.aspx means login failed. Since the credentials are correct, is it most likely
@@ -350,5 +351,91 @@ def attendance_json(username: str, password: str) -> str:
                     + "_total": int(table[i]["Total Period"]),
                 }
             )
+    # Return the data after calling json.dumps() on it
+    return dumps(data)
+
+
+def get_fees(data: str) -> list:
+    """
+
+    Parameters
+    ----------
+    data -> Fees HTML page to be parsed
+
+    Returns
+    -------
+    List of dicts containing fees data
+    """
+    soup = BeautifulSoup(data, features="html.parser")
+    tables = soup.findAll("table")
+
+    # ERP Fees page contains 2 tables
+    if len(tables) != 2:
+        return ["Error"]
+
+    # Fees data is in the second table
+    table = tables[1]
+
+    # Get all the table titles
+    titles = []
+    demo = table.find("tr").findAll("td")
+    for l in list(demo):
+        titles.append(l.text)
+
+    ret = []
+
+    # Iterate over all the rows in the body to get the actual data(enumerate is used to get the index of for lop)
+    for idx, row in enumerate(table.findAll("tr")[1:]):
+        fees = {}
+        # Length 15 contains Fees type
+        if len(row) == 15:
+            # 7th,12th and 14th index of for loop contains the totals of respective fees types which we want to ignore
+            if idx == 7 or idx == 12 or idx == 14:
+                continue
+            for element in range(len(row.findAll("td"))):
+                fees[titles[element]] = row.findAll("td")[element].text.strip()
+        # Length 13 means its the 2nd row for the Fees type, so need the previous Fees type name
+        elif len(row) == 13:
+            # 15th index contains the grand total of all fees which we also ignore
+            if idx == 15:
+                continue
+            fees[titles[0]] = ret[-1][titles[0]]
+            for element in range(len(row.findAll("td"))):
+                fees[titles[element + 1]] = row.findAll("td")[element].text.strip()
+        else:
+            continue
+
+        # The Advance column in erp fees table gives a blank string when there is no advance, so replacing it with '0'
+        dct = {k: '0' if not v else v for k, v in fees.items()}
+        ret.append(dct)
+
+    return ret
+
+def fees_json(username: str, password: str) -> str:
+    """
+
+    Parameters
+    ----------
+    username -> ERP ID
+    password -> ERP Password
+
+    Returns
+    -------
+    JSON body containing fees data
+    """
+
+    # Keep trying to get fees until we succeed or hit one of our error messages
+    while True:
+        fees_data = fees(username, password)
+        if fees_data in ERRORS.keys():
+            return dumps([{"response": ERRORS[fees_data]}])
+        ret = get_fees(fees_data)
+        if ret == ["Error"]:
+            return dumps([{"response": "Error parsing attendance!"}])
+        break
+
+    # Convert the data BeautifulSoup gave us into a list of dicts
+    data = list(ret)
+
     # Return the data after calling json.dumps() on it
     return dumps(data)
