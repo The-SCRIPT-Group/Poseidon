@@ -13,8 +13,8 @@ from decouple import config
 
 from telegram import TG
 
-api_key = None
-chat_id = None
+api_key = config("TELEGRAM_API_KEY")
+chat_id = config("TELEGRAM_CHAT_ID")
 
 tg = TG(api_key)
 
@@ -130,7 +130,7 @@ def get_erp_data(
 
                 captcha_text = loki.image_to_string(
                     image,
-                    config='--psm 8 --oem 0 -c tessedit_char_whitelist=0123456789abcdef --tessdata-dir "C:\\Users\\gjadd\\AppData\\Local\\Tesseract-OCR\\tessdata"',
+                    config="--psm 8 --oem 0 -c tessedit_char_whitelist=0123456789abcdef",
                 )
 
             # Set the payload for the actual login part
