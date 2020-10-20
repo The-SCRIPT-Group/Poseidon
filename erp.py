@@ -176,7 +176,6 @@ def get_erp_data(
             # For attendance and timetable, this is the page title
             # However even wrong captcha page has the same title, so ensure no traces of AdminLogin.aspx
             if title in VALID_TITLES and "AdminLogin.aspx" not in data:
-                print(data)
                 return data
 
             # A reference to AdminLogin.aspx means login failed. Since the credentials are correct, is it most likely
