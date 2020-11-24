@@ -14,7 +14,7 @@ Jinja2==2.11.2
 MarkupSafe==1.1.1
 pathspec==0.8.0
 Pillow==7.2.0
-pytesseract==0.3.4
+pytesseract==0.3.2
 python-decouple==3.3
 regex==2020.7.14
 requests==2.24.0
