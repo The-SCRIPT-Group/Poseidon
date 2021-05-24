@@ -11,6 +11,7 @@ pytesseract = "^0.3.7"
 Pillow = "^8.2.0"
 beautifulsoup4 = "^4.9.3"
 python-decouple = "^3.4"
+requests = "^2.25.1"
 
 [tool.poetry.dev-dependencies]
 black = "^21.5b1"
