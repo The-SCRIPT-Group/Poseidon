@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "poseidon"
+version = "0.1.0"
+description = ""
+authors = ["Akhil Narang <me@akhilnarang.dev>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+Flask = "^2.0.1"
+pytesseract = "^0.3.7"
+Pillow = "^8.2.0"
+beautifulsoup4 = "^4.9.3"
+python-decouple = "^3.4"
+
+[tool.poetry.dev-dependencies]
+black = "^21.5b1"
+isort = "^5.8.0"
+flake8 = "^3.9.2"
+autoflake = "^1.4"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
