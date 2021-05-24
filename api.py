@@ -1,8 +1,8 @@
 from random import choice
 
-from flask import Flask, request, redirect, url_for, render_template
+from flask import Flask, redirect, render_template, request, url_for
 
-from erp import attendance, attendance_json, timetable, miscellaneous, fees
+from erp import attendance, attendance_json, fees, miscellaneous, timetable
 
 # Initialize our Flask application
 app = Flask(__name__)
@@ -16,7 +16,7 @@ methods = {
 }
 
 
-@app.route("/api/attendance", methods=["POST"])
+@app.post("/api/attendance")
 def get_attendance():
     """
     # Route for attendance API
@@ -37,22 +37,29 @@ def get_attendance():
     return attendance_json(username, password)
 
 
-@app.route("/web", methods=["GET", "POST"])
-def web():
+@app.get("/web")
+def web_get():
     """
     A small frontend which lets you view attendance or timetable in a browser
     Returns
     -------
-
     """
-    if request.method == "POST":
-        return methods[request.form["page"]](
-            request.form["username"], request.form["password"]
-        )
     return render_template("login.html")
 
 
-@app.route("/")
+@app.post("/web")
+def web_post():
+    """
+    A small frontend which lets you view attendance or timetable in a browser
+    Returns
+    -------
+    """
+    return methods[request.form["page"]](
+        request.form["username"], request.form["password"]
+    )
+
+
+@app.get("/")
 def root():
     """
     Root of the site

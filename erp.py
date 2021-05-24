@@ -3,13 +3,14 @@ import os
 from base64 import b64decode
 from io import BytesIO
 from json import dumps, loads
-from re import search, DOTALL
+from re import DOTALL, search
+from typing import Dict, List
 
 import pytesseract as loki
 import requests
-from PIL import Image
 from bs4 import BeautifulSoup
 from decouple import config
+from PIL import Image
 
 from telegram import TG
 
@@ -153,8 +154,8 @@ def get_erp_data(
                 return "w"
 
             # Check for the new useless ratelimits of allowing us to login only every 30 minutes
-            if m := search(r'You are allowed to login after \d+ min\.', response.text):
-                error_key = f'{username}-ratelimit'
+            if m := search(r"You are allowed to login after \d+ min\.", response.text):
+                error_key = f"{username}-ratelimit"
                 ERRORS[error_key] = m.group()
                 return error_key
 
@@ -167,7 +168,8 @@ def get_erp_data(
             ).text
 
             # Check the title of retrieved page
-            title = search("(?<=<title>).+?(?=</title>)", data, DOTALL).group().strip()
+            if title_search := search("(?<=<title>).+?(?=</title>)", data, DOTALL):
+                title = title_search.group().strip()
 
             # Before a new trimester starts, ERP records are seemingly wiped
             if "Record Not Found" in data:
@@ -251,7 +253,7 @@ def miscellaneous(username: str, password: str) -> str:
     return get_erp_data(username, password, "MainNew")
 
 
-def get_attendance(data: str) -> list:
+def get_attendance(data: str) -> List:
     """
 
     Parameters
@@ -277,27 +279,29 @@ def get_attendance(data: str) -> list:
 
     # Get the table body
     body = table.find("tbody")
-    ret = []
+    ret: List = [Dict]
 
     # Iterate over all the rows in the body to get the actual data
     for row in body.findAll("tr"):
-        attendance = {}
+        attendance_dict = {}
         # Length 6 contains subject name and serial number as well
         if len(row) == 6:
             for element in range(len(row.findAll("td"))):
-                attendance[titles[element]] = row.findAll("td")[element].text.strip()
+                attendance_dict[titles[element]] = row.findAll("td")[
+                    element
+                ].text.strip()
         # Length 4 means its the 2nd row for the subject, so need the previous subject name
         elif len(row) == 4:
-            attendance[titles[0]] = ret[-1][titles[0]]
-            attendance[titles[1]] = ret[-1][titles[1]]
+            attendance_dict[titles[0]] = ret[-1][titles[0]]
+            attendance_dict[titles[1]] = ret[-1][titles[1]]
             for element in range(len(row.findAll("td"))):
-                attendance[titles[element + 2]] = row.findAll("td")[
+                attendance_dict[titles[element + 2]] = row.findAll("td")[
                     element
                 ].text.strip()
         # Any other structure means its one of the totals which is easier to compute on our own than parse
         else:
             continue
-        ret.append(attendance)
+        ret.append(attendance_dict)
     return ret
 
 
@@ -325,7 +329,7 @@ def attendance_json(username: str, password: str) -> str:
         break
 
     # Convert the data BeautifulSoup gave us into a list of dicts
-    data = list()
+    data: List[Dict] = list()
     table = ret
     for i in range(len(table)):
         # Ignore serial number
