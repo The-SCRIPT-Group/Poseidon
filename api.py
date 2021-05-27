@@ -67,7 +67,7 @@ def root():
     -------
     Redirects you to /web
     """
-    return redirect(url_for("web"))
+    return redirect(url_for("web_get"))
 
 
 if __name__ == "__main__":
