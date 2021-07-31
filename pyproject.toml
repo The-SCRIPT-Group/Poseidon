@@ -5,7 +5,7 @@ description = ""
 authors = ["Akhil Narang <me@akhilnarang.dev>"]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "3.9.6"
 Flask = "^2.0.1"
 pytesseract = "^0.3.7"
 Pillow = "^8.2.0"
